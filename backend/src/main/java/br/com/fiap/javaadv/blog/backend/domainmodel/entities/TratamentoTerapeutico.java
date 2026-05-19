@@ -1,0 +1,49 @@
+package br.com.fiap.javaadv.blog.backend.domainmodel.entities;
+
+
+import br.com.fiap.javaadv.blog.backend.domainmodel.enums.CategoriaCuidadoEnum;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.*;
+
+@Entity
+@Table(name = "BC_TRATAMENTO_TERAPEUTICO")
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@ToString(callSuper = true)
+public class TratamentoTerapeutico extends RegistroCuidado {
+
+    @NotBlank(message = "O nome do medicamento é obrigatório")
+    @Size(min = 2, max = 150, message = "O nome do medicamento deve ter entre 2 e 150 caracteres")
+    @Column(name = "NOME_MEDICAMENTO", length = 150, nullable = false)
+    private String nomeMedicamento;
+
+    @NotBlank(message = "A dosagem é obrigatória")
+    @Size(min = 1, max = 100, message = "A dosagem deve ter entre 1 e 100 caracteres")
+    @Column(name = "DOSAGEM", length = 100, nullable = false)
+    private String dosagem;
+
+    @Size(max = 100, message = "A frequência deve ter no máximo 100 caracteres")
+    @Column(name = "FREQUENCIA", length = 100)
+    private String frequencia;
+
+    @Size(max = 50, message = "A duração deve ter no máximo 50 caracteres")
+    @Column(name = "DURACAO_TRATAMENTO", length = 50)
+    private String duracaoTratamento;
+
+    @Builder(builderMethodName = "terapeuticoBuilder")
+    public TratamentoTerapeutico(String nomeMedicamento, String dosagem, String frequencia,
+                                 String duracaoTratamento, String observacao, Animal animal) {
+        super();
+        setCategoria(CategoriaCuidadoEnum.TERAPEUTICO);
+        setObservacao(observacao);
+        setAnimal(animal);
+        this.nomeMedicamento = nomeMedicamento;
+        this.dosagem = dosagem;
+        this.frequencia = frequencia;
+        this.duracaoTratamento = duracaoTratamento;
+    }
+}
