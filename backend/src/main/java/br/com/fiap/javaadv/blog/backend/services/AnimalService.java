@@ -57,18 +57,16 @@ public class AnimalService {
         return animalRepository.findByAtivoTrue();
     }
 
-    // CORRIGIDO: Agora recebe TipoAnimalEnum diretamente
     public List<Animal> findByTipo(TipoAnimalEnum tipo) {
         return animalRepository.findByTipo(tipo);
     }
 
-    // Sobrecarga do método para receber String (se preferir)
     public List<Animal> findByTipo(String tipo) {
         try {
             TipoAnimalEnum tipoEnum = TipoAnimalEnum.valueOf(tipo.toUpperCase());
             return animalRepository.findByTipo(tipoEnum);
         } catch (IllegalArgumentException e) {
-            return List.of(); // Retorna lista vazia se o tipo for inválido
+            return List.of();
         }
     }
 

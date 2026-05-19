@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class TratamentoTerapeuticoCadastroRequest {
+public class TratamentoTerapeuticoRequest {
 
     private @Getter @Setter
     @NotBlank(message = "O ID do animal é obrigatório")
@@ -38,7 +38,7 @@ public class TratamentoTerapeuticoCadastroRequest {
     String observacao;
 
     // Converter de DTO para Entity
-    public static TratamentoTerapeutico toEntity(final TratamentoTerapeuticoCadastroRequest dto, final Animal animal) {
+    public static TratamentoTerapeutico toEntity(final TratamentoTerapeuticoRequest dto, final Animal animal) {
         return TratamentoTerapeutico.terapeuticoBuilder()
                 .nomeMedicamento(dto.getNomeMedicamento())
                 .dosagem(dto.getDosagem())

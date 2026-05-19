@@ -1,6 +1,7 @@
 package br.com.fiap.javaadv.blog.backend.resources;
 
 import br.com.fiap.javaadv.blog.backend.domainmodel.entities.Animal;
+import br.com.fiap.javaadv.blog.backend.domainmodel.enums.TipoAnimalEnum;
 import br.com.fiap.javaadv.blog.backend.resources.dtos.AnimalRequest;
 import br.com.fiap.javaadv.blog.backend.resources.dtos.AnimalResponse;
 import br.com.fiap.javaadv.blog.backend.services.AnimalService;
@@ -41,12 +42,20 @@ public class AnimalResource {
 
     @PutMapping("/{id}")
     public ResponseEntity<AnimalResponse> update(@PathVariable String id, @Valid @RequestBody AnimalRequest request) {
+        // Verificar se o animal existe
+        if (!animalService.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Criar animal atualizado
         Animal animal = request.toEntity();
         animal.setId(id);
 
-        return animalService.update(id, animal)
-                .map(animalAtualizado -> ResponseEntity.ok(AnimalResponse.toDto(animalAtualizado)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        // Atualizar
+        Animal updated = animalService.update(id, animal)
+                .orElseThrow(() -> new RuntimeException("Erro ao atualizar animal"));
+
+        return ResponseEntity.ok(AnimalResponse.toDto(updated));
     }
 
     @DeleteMapping("/{id}")
@@ -88,12 +97,17 @@ public class AnimalResource {
 
     @GetMapping("/tipo/{tipo}")
     public ResponseEntity<List<AnimalResponse>> fetchByTipo(@PathVariable String tipo) {
-        return ResponseEntity.ok(
-                animalService.findByTipo(tipo)
-                        .stream()
-                        .map(AnimalResponse::toDto)
-                        .collect(Collectors.toList())
-        );
+        try {
+            TipoAnimalEnum tipoEnum = TipoAnimalEnum.valueOf(tipo.toUpperCase());
+            return ResponseEntity.ok(
+                    animalService.findByTipo(tipoEnum)
+                            .stream()
+                            .map(AnimalResponse::toDto)
+                            .collect(Collectors.toList())
+            );
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/nome/{nome}")
@@ -104,6 +118,8 @@ public class AnimalResource {
                         .map(AnimalResponse::toDto)
                         .collect(Collectors.toList())
         );
+
+
     }
 
     @PatchMapping("/{id}/desativar")
@@ -124,5 +140,15 @@ public class AnimalResource {
                     return ResponseEntity.noContent().<Void>build();
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping
+    public ResponseEntity<List<AnimalResponse>> findAll(@ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable) {
+        return ResponseEntity.ok(
+                animalService.fetchAll(pageable)
+                        .stream()
+                        .map(AnimalResponse::toDto)
+                        .collect(Collectors.toList())
+        );
     }
 }

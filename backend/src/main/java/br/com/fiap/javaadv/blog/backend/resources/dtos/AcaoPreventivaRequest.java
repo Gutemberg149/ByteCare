@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AcaoPreventivaCadastroRequest {
+public class AcaoPreventivaRequest {
 
     private @Getter @Setter
     @NotBlank(message = "O ID do animal é obrigatório")
@@ -32,8 +32,7 @@ public class AcaoPreventivaCadastroRequest {
     @Size(max = 500, message = "A observação deve ter no máximo 500 caracteres")
     String observacao;
 
-    // Converter de DTO para Entity
-    public static AcaoPreventiva toEntity(final AcaoPreventivaCadastroRequest dto, final Animal animal) {
+    public static AcaoPreventiva toEntity(final AcaoPreventivaRequest dto, final Animal animal) {
         return AcaoPreventiva.preventivoBuilder()
                 .nomeServico(dto.getNomeServico())
                 .descricao(dto.getDescricao())

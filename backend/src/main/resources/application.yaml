@@ -1,9 +1,9 @@
 spring:
   application:
-    name: blog
+    name: bytecare
 
   datasource:
-    url: jdbc:h2:mem:blogdb
+    url: jdbc:h2:mem:bytecaredb
     driver-class-name: org.h2.Driver
     username: sa
     password: ""
@@ -13,22 +13,15 @@ spring:
       minimum-idle: 5
       idle-timeout: 300000
       max-lifetime: 900000
-      pool-name: blogHikariConnectionPool
-#      auto-commit: true # NAO SE FAZ ESSA LAMA ABAIXO EM PRODUCAO
-
-  sql:
-    init:
-      schema-locations: classpath*:schema.sql
-      data-locations: classpath*:data.sql
-      mode: always
+      pool-name: bytecareHikariConnectionPool
 
   h2:
     console:
       enabled: true
-      path: /console
+      path: /h2-console
       settings:
-        trace: true
-        web-allow-others: true
+        trace: false
+        web-allow-others: false
 
   jpa:
     hibernate:
@@ -37,16 +30,12 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
         jdbc:
           batch_size: 20
         order_inserts: true
         order_updates: true
-        cache:
-          use_second_level_cache: false
-          use_query_cache: false
-
-  cache:
-    type: caffeine
+    database-platform: org.hibernate.dialect.H2Dialect
 
   main:
     banner-mode: console
@@ -57,64 +46,74 @@ spring:
     format:
       date: yyyy-MM-dd
       date-time: yyyy-MM-dd HH:mm:ss
+
   web:
     error:
       include-binding-errors: always
-      include-stacktrace: always
+      include-stacktrace: never
       include-message: always
-      include-exception: true
+      include-exception: false
 
+# Configurações do SpringDoc OpenAPI (Swagger)
 springdoc:
   api-docs:
     path: /api-docs
     enabled: true
   swagger-ui:
     path: /swagger-ui.html
-    tagsSorter: alpha
-    operationsSorter: alpha
+    tags-sorter: alpha
+    operations-sorter: alpha
     display-request-duration: true
     filter: true
     enabled: true
-  version: 1.0.0
+    try-it-out-enabled: true
+    doc-expansion: none
+
+  # Informações da API para o Swagger
   info:
-    title: Product Management API
-    description: API for managing products with CRUD operations
+    title: ByteCare API
+    description: |
+      API para gerenciamento de cuidados com animais de estimação.
+      
+      ## Funcionalidades
+      - Cadastro e gerenciamento de animais
+      - Registro de ações preventivas (vacinas, vermífugos)
+      - Registro de atividades de bem-estar
+      - Registro de tratamentos terapêuticos
+      - Consulta de histórico de cuidados
+      
+      ## Tecnologias
+      - Spring Boot 3.4.5
+      - Spring Data JPA
+      - H2 Database
+      - Lombok
+      - OpenAPI 3.0
     version: 1.0.0
     contact:
-      name: API Support
-      email: orlando.patriarcha@gmail.com
+      name: ByteCare Team
+      email: contato@bytecare.com
     license:
-      name: Apache 2.0
-      url: https://www.apache.org/licenses/LICENSE-2.0
+      name: MIT License
+      url: https://opensource.org/licenses/MIT
 
+# Logging
 logging:
   level:
     root: INFO
-    org:
-      hibernate:
-        SQL: DEBUG
-        type:
-          descriptor:
-            sql:
-              BasicBinder: TRACE
-      springframework:
-        jdbc:
-          core: TRACE
-        transaction: TRACE
-    br:
-      com:
-        fiap:
-          javaadv:
-            blog:
-            backend: DEBUG
-
+    br.com.fiap.javaadv.blog.backend: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.web: DEBUG
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n"
-
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n"
   file:
-    name: application.log
+    name: logs/bytecare.log
     path: logs
+    max-size: 10MB
+    max-history: 30
 
+# Server
 server:
   port: 8080
   servlet:
@@ -123,3 +122,16 @@ server:
     enabled: true
     mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
     min-response-size: 1024
+  error:
+    include-stacktrace: never
+    include-message: always
+
+# Management (Actuator - opcional)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

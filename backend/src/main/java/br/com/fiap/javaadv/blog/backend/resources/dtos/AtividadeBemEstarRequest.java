@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AtividadeBemEstarCadastroRequest {
+public class AtividadeBemEstarRequest {
 
     private @Getter @Setter
     @NotBlank(message = "O ID do animal é obrigatório")
@@ -33,7 +33,7 @@ public class AtividadeBemEstarCadastroRequest {
     String observacao;
 
     // Converter de DTO para Entity
-    public static AtividadeBemEstar toEntity(final AtividadeBemEstarCadastroRequest dto, final Animal animal) {
+    public static AtividadeBemEstar toEntity(final AtividadeBemEstarRequest dto, final Animal animal) {
         return AtividadeBemEstar.bemEstarBuilder()
                 .nomeAtividade(dto.getNomeAtividade())
                 .observacaoAtividade(dto.getObservacaoAtividade())
