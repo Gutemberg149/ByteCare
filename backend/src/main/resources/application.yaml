@@ -2,43 +2,57 @@ spring:
   application:
     name: bytecare
 
+  # ========== CONFIGURAÇÃO ORACLE ==========
   datasource:
-    url: jdbc:h2:mem:bytecaredb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: ""
+    url: jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL
+    driver-class-name: oracle.jdbc.OracleDriver
+    username: rm562267
+    password: fiap26
+
     hikari:
-      connection-timeout: 20000
+      connection-timeout: 30000
       maximum-pool-size: 10
-      minimum-idle: 5
-      idle-timeout: 300000
-      max-lifetime: 900000
-      pool-name: bytecareHikariConnectionPool
+      minimum-idle: 2
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-test-query: SELECT 1 FROM DUAL
+      pool-name: bytecareOracleHikariPool
+      auto-commit: false
+      validation-timeout: 5000
+      leak-detection-threshold: 60000
 
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-      settings:
-        trace: false
-        web-allow-others: false
-
+  # ========== JPA/HIBERNATE PARA ORACLE ==========
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update # Alterado de create-drop para update para persistir no SQL Developer
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
     show-sql: true
+    generate-ddl: true
+    defer-datasource-initialization: true
+
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.OracleDialect
         format_sql: true
-        dialect: org.hibernate.dialect.H2Dialect
+        use_sql_comments: true
+
         jdbc:
-          batch_size: 20
+          batch_size: 30
+          fetch_size: 100
+
         order_inserts: true
         order_updates: true
-    database-platform: org.hibernate.dialect.H2Dialect
 
+    database-platform: org.hibernate.dialect.OracleDialect
+    database: ORACLE
+    open-in-view: false
+
+  # ========== CONFIGURAÇÕES GERAIS ==========
   main:
     banner-mode: console
+    allow-circular-references: false
 
   mvc:
     servlet:
@@ -54,7 +68,7 @@ spring:
       include-message: always
       include-exception: false
 
-# Configurações do SpringDoc OpenAPI (Swagger)
+# ========== SPRINGDOC OPENAPI ==========
 springdoc:
   api-docs:
     path: /api-docs
@@ -69,34 +83,15 @@ springdoc:
     try-it-out-enabled: true
     doc-expansion: none
 
-  # Informações da API para o Swagger
   info:
     title: ByteCare API
-    description: |
-      API para gerenciamento de cuidados com animais de estimação.
-      
-      ## Funcionalidades
-      - Cadastro e gerenciamento de animais
-      - Registro de ações preventivas (vacinas, vermífugos)
-      - Registro de atividades de bem-estar
-      - Registro de tratamentos terapêuticos
-      - Consulta de histórico de cuidados
-      
-      ## Tecnologias
-      - Spring Boot 3.4.5
-      - Spring Data JPA
-      - H2 Database
-      - Lombok
-      - OpenAPI 3.0
+    description: API para gerenciamento de cuidados com animais de estimação.
     version: 1.0.0
     contact:
       name: ByteCare Team
       email: contato@bytecare.com
-    license:
-      name: MIT License
-      url: https://opensource.org/licenses/MIT
 
-# Logging
+# ========== LOGGING ==========
 logging:
   level:
     root: INFO
@@ -104,29 +99,21 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     org.springframework.web: DEBUG
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n"
-  file:
-    name: logs/bytecare.log
-    path: logs
-    max-size: 10MB
-    max-history: 30
+    com.zaxxer.hikari: INFO
+    oracle: INFO
 
-# Server
+# ========== SERVER ==========
 server:
   port: 8080
   servlet:
     context-path: /
   compression:
     enabled: true
-    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
-    min-response-size: 1024
   error:
     include-stacktrace: never
     include-message: always
 
-# Management (Actuator - opcional)
+# ========== MANAGEMENT ==========
 management:
   endpoints:
     web:

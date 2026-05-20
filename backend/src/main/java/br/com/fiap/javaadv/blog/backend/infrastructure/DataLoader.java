@@ -27,6 +27,13 @@ public class DataLoader implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
+        // Proteção para evitar duplicação de dados ao usar ddl-auto: update
+        if (animalRepository.count() > 0) {
+            System.out.println("=== Banco já contem dados. Carga inicial pulada para evitar duplicidade. ===");
+            System.out.println("Animais cadastrados: " + animalRepository.count());
+            return;
+        }
+
         // ================= ANIMAIS =================
 
         Animal animal1 = Animal.builder()
