@@ -1,224 +1,165 @@
+//package br.com.fiap.javaadv.blog.backend.datasource.repositories;
+//
+//import br.com.fiap.javaadv.blog.backend.domainmodel.entities.Animal;
+//import br.com.fiap.javaadv.blog.backend.domainmodel.enums.TipoAnimalEnum;
+//import org.springframework.cache.annotation.CacheEvict;
+//import org.springframework.cache.annotation.CachePut;
+//import org.springframework.cache.annotation.Cacheable;
+//import org.springframework.data.domain.Page;
+//import org.springframework.data.domain.Pageable;
+//import org.springframework.data.jpa.repository.JpaRepository;
+//import org.springframework.data.jpa.repository.Modifying;
+//import org.springframework.data.jpa.repository.Query;
+//import org.springframework.data.repository.query.Param;
+//import org.springframework.stereotype.Repository;
+//import org.springframework.transaction.annotation.Transactional;
+//
+//import java.time.LocalDate;
+//import java.util.List;
+//import java.util.Optional;
+//
+//@Repository
+//public interface AnimalRepository extends JpaRepository<Animal, String> {
+//
+//
+//    List<Animal> findByAtivoTrue();
+//
+//    List<Animal> findByAtivoFalse();
+//
+//    Page<Animal> findByAtivoTrue(Pageable pageable);
+//
+//    Page<Animal> findByAtivoFalse(Pageable pageable);
+//
+//    // ========== BUSCAS POR TIPO ==========
+//
+//    List<Animal> findByTipo(TipoAnimalEnum tipo);
+//
+//    List<Animal> findByTipoAndAtivoTrue(TipoAnimalEnum tipo);
+//
+//    Page<Animal> findByTipo(TipoAnimalEnum tipo, Pageable pageable);
+//
+//    // ========== BUSCAS POR NOME ==========
+//
+//    Optional<Animal> findByNome(String nome);
+//
+//    List<Animal> findByNomeContainingIgnoreCase(String nome);
+//
+//    List<Animal> findByNomeContainingIgnoreCaseAndAtivoTrue(String nome);
+//
+//    boolean existsByNomeIgnoreCase(String nome);
+//
+//    // ========== BUSCAS POR DATA ==========
+//
+////    List<Animal> findByDataNascimentoAfter(LocalDate data);
+//
+//    List<Animal> findByDataNascimentoBefore(LocalDate data);
+//
+//    List<Animal> findByDataNascimentoBetween(LocalDate inicio, LocalDate fim);
+//
+//    // ========== BUSCAS POR RAÇA ==========
+//
+//    List<Animal> findByRaca(String raca);
+//
+//    List<Animal> findByRacaIgnoreCase(String raca);
+//
+//    // ========== BUSCAS COMBINADAS ==========
+//
+//    List<Animal> findByTipoAndRaca(TipoAnimalEnum tipo, String raca);
+//
+//    List<Animal> findByTipoAndRacaAndAtivoTrue(TipoAnimalEnum tipo, String raca);
+//
+//    // ========== QUERIES PERSONALIZADAS COM JPQL ==========
+//
+//    @Query("SELECT a FROM Animal a WHERE a.tipo = :tipo AND a.ativo = true")
+//    List<Animal> findAtivosByTipo(@Param("tipo") TipoAnimalEnum tipo);
+//
+//    @Query("SELECT a FROM Animal a WHERE LOWER(a.nome) LIKE LOWER(CONCAT('%', :nome, '%'))")
+//    List<Animal> buscarPorNomeLike(@Param("nome") String nome);
+//
+//    @Query("SELECT a FROM Animal a WHERE a.observacaoGeral IS NULL OR a.observacaoGeral = ''")
+//    List<Animal> findWithoutObservacao();
+//
+//    @Query("SELECT a FROM Animal a WHERE a.observacaoGeral IS NOT NULL AND a.observacaoGeral != ''")
+//    List<Animal> findWithObservacao();
+//
+//    // ========== QUERIES COM COUNT E ESTATÍSTICAS ==========
+//
+//    long countByAtivoTrue();
+//
+//    long countByAtivoFalse();
+//
+//    long countByTipo(TipoAnimalEnum tipo);
+//
+//    long countByTipoAndAtivoTrue(TipoAnimalEnum tipo);
+//
+//    long countByTipoAndRaca(TipoAnimalEnum tipo, String raca);
+//
+//    // ========== OPERAÇÕES DE ATUALIZAÇÃO EM MASSA ==========
+//
+//    @Modifying
+//    @Transactional
+//    @CacheEvict(value = "animais", allEntries = true) // Limpa toda a região de memória cacheada ao alterar dados em massa
+//    @Query("UPDATE Animal a SET a.ativo = false WHERE a.tipo = :tipo")
+//    int desativarPorTipo(@Param("tipo") TipoAnimalEnum tipo);
+//
+//    @Modifying
+//    @Transactional
+//    @CacheEvict(value = "animais", allEntries = true)
+//    @Query("UPDATE Animal a SET a.ativo = true WHERE a.tipo = :tipo AND a.ativo = false")
+//    int ativarPorTipo(@Param("tipo") TipoAnimalEnum tipo);
+//
+//    // ========== CONSULTAS COM PAGINAÇÃO E ORDENAÇÃO ==========
+//
+//    List<Animal> findAllByOrderByNomeAsc();
+//
+//    List<Animal> findByAtivoTrueOrderByNomeAsc();
+//
+//    List<Animal> findByTipoOrderByNomeAsc(TipoAnimalEnum tipo);
+//
+//    // ========== BUSCAS POR MÚLTIPLOS IDS ==========
+//
+//    List<Animal> findByIdIn(List<String> ids);
+//
+//    List<Animal> findByIdInAndAtivoTrue(List<String> ids);
+//}
+
 package br.com.fiap.javaadv.blog.backend.datasource.repositories;
-
-
 
 import br.com.fiap.javaadv.blog.backend.domainmodel.entities.Animal;
 import br.com.fiap.javaadv.blog.backend.domainmodel.enums.TipoAnimalEnum;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface AnimalRepository extends JpaRepository<Animal, String> {
-
-    // ========== BUSCAS POR STATUS ==========
-
-    /**
-     * Busca todos os animais ativos
-     */
-    List<Animal> findByAtivoTrue();
-
-    /**
-     * Busca todos os animais inativos
-     */
-    List<Animal> findByAtivoFalse();
-
-    /**
-     * Busca animais ativos com paginação
-     */
-    Page<Animal> findByAtivoTrue(Pageable pageable);
-
-    /**
-     * Busca animais inativos com paginação
-     */
-    Page<Animal> findByAtivoFalse(Pageable pageable);
+public interface AnimalRepository extends JpaRepository<Animal, UUID> {
 
     // ========== BUSCAS POR TIPO ==========
 
-    /**
-     * Busca animais por tipo (CACHORRO ou GATO)
-     */
+    // Listagem direta por tipo (Solicitado)
     List<Animal> findByTipo(TipoAnimalEnum tipo);
 
-    /**
-     * Busca animais ativos por tipo
-     */
-    List<Animal> findByTipoAndAtivoTrue(TipoAnimalEnum tipo);
+    // CRÍTICO: Listagem por tipo ordenada para não vir bagunçada na tela/mobile
+    List<Animal> findByTipoOrderByNomeAsc(TipoAnimalEnum tipo);
 
-    /**
-     * Busca animais por tipo com paginação
-     */
-    Page<Animal> findByTipo(TipoAnimalEnum tipo, Pageable pageable);
 
     // ========== BUSCAS POR NOME ==========
 
-    /**
-     * Busca animais por nome (exato)
-     */
+    // Busca exata por nome (Solicitado)
     Optional<Animal> findByNome(String nome);
 
-    /**
-     * Busca animais por nome (contém - case insensitive)
-     */
+    // Busca parcial por nome ignorando maiúsculas/minúsculas (Solicitado)
     List<Animal> findByNomeContainingIgnoreCase(String nome);
 
-    /**
-     * Busca animais ativos por nome (contém)
-     */
-    List<Animal> findByNomeContainingIgnoreCaseAndAtivoTrue(String nome);
-
-    /**
-     * Verifica se já existe um animal com o mesmo nome (case insensitive)
-     */
+    // CRÍTICO: Evita cadastrar dois animais com o mesmo nome duplicado por erro de digitação
     boolean existsByNomeIgnoreCase(String nome);
 
-    // ========== BUSCAS POR DATA ==========
 
-    /**
-     * Busca animais nascidos após uma data
-     */
-    List<Animal> findByDataNascimentoAfter(LocalDate data);
+    // ========== INFRAESTRUTURA ESSENCIAL ==========
 
-    /**
-     * Busca animais nascidos antes de uma data
-     */
-    List<Animal> findByDataNascimentoBefore(LocalDate data);
-
-    /**
-     * Busca animais nascidos entre duas datas
-     */
-    List<Animal> findByDataNascimentoBetween(LocalDate inicio, LocalDate fim);
-
-    // ========== BUSCAS POR RAÇA ==========
-
-    /**
-     * Busca animais por raça
-     */
-    List<Animal> findByRaca(String raca);
-
-    /**
-     * Busca animais por raça (case insensitive)
-     */
-    List<Animal> findByRacaIgnoreCase(String raca);
-
-    // ========== BUSCAS COMBINADAS ==========
-
-    /**
-     * Busca animais por tipo e raça
-     */
-    List<Animal> findByTipoAndRaca(TipoAnimalEnum tipo, String raca);
-
-    /**
-     * Busca animais ativos por tipo e raça
-     */
-    List<Animal> findByTipoAndRacaAndAtivoTrue(TipoAnimalEnum tipo, String raca);
-
-    // ========== QUERIES PERSONALIZADAS COM JPQL ==========
-
-    /**
-     * Busca animais ativos por tipo (usando JPQL)
-     */
-    @Query("SELECT a FROM Animal a WHERE a.tipo = :tipo AND a.ativo = true")
-    List<Animal> findAtivosByTipo(@Param("tipo") TipoAnimalEnum tipo);
-
-    /**
-     * Busca animais por parte do nome (JPQL)
-     */
-    @Query("SELECT a FROM Animal a WHERE LOWER(a.nome) LIKE LOWER(CONCAT('%', :nome, '%'))")
-    List<Animal> buscarPorNomeLike(@Param("nome") String nome);
-
-    /**
-     * Busca animais que não têm observação geral
-     */
-    @Query("SELECT a FROM Animal a WHERE a.observacaoGeral IS NULL OR a.observacaoGeral = ''")
-    List<Animal> findWithoutObservacao();
-
-    /**
-     * Busca animais que têm observação geral
-     */
-    @Query("SELECT a FROM Animal a WHERE a.observacaoGeral IS NOT NULL AND a.observacaoGeral != ''")
-    List<Animal> findWithObservacao();
-
-    // ========== QUERIES COM COUNT E ESTATÍSTICAS ==========
-
-    /**
-     * Conta quantos animais ativos existem
-     */
-    long countByAtivoTrue();
-
-    /**
-     * Conta quantos animais inativos existem
-     */
-    long countByAtivoFalse();
-
-    /**
-     * Conta animais por tipo
-     */
-    long countByTipo(TipoAnimalEnum tipo);
-
-    /**
-     * Conta animais ativos por tipo
-     */
-    long countByTipoAndAtivoTrue(TipoAnimalEnum tipo);
-
-    /**
-     * Conta animais por tipo e raça
-     */
-    long countByTipoAndRaca(TipoAnimalEnum tipo, String raca);
-
-    // ========== OPERAÇÕES DE ATUALIZAÇÃO EM MASSA ==========
-
-    /**
-     * Desativa todos os animais de um determinado tipo
-     */
-    @Modifying
-    @Transactional
-    @Query("UPDATE Animal a SET a.ativo = false WHERE a.tipo = :tipo")
-    int desativarPorTipo(@Param("tipo") TipoAnimalEnum tipo);
-
-    /**
-     * Ativa todos os animais de um determinado tipo
-     */
-    @Modifying
-    @Transactional
-    @Query("UPDATE Animal a SET a.ativo = true WHERE a.tipo = :tipo AND a.ativo = false")
-    int ativarPorTipo(@Param("tipo") TipoAnimalEnum tipo);
-
-    // ========== CONSULTAS COM PAGINAÇÃO E ORDENAÇÃO ==========
-
-    /**
-     * Busca animais ordenados por nome (crescente)
-     */
+    // CRÍTICO: Retornar todos os animais em ordem alfabética por padrão
     List<Animal> findAllByOrderByNomeAsc();
-
-    /**
-     * Busca animais ativos ordenados por nome
-     */
-    List<Animal> findByAtivoTrueOrderByNomeAsc();
-
-    /**
-     * Busca animais por tipo ordenados por nome
-     */
-    List<Animal> findByTipoOrderByNomeAsc(TipoAnimalEnum tipo);
-
-    // ========== BUSCAS POR MÚLTIPLOS IDS ==========
-
-    /**
-     * Busca animais por uma lista de IDs
-     */
-    List<Animal> findByIdIn(List<String> ids);
-
-    /**
-     * Busca animais ativos por uma lista de IDs
-     */
-    List<Animal> findByIdInAndAtivoTrue(List<String> ids);
 }

@@ -114,39 +114,36 @@
 
 package br.com.fiap.javaadv.blog.backend.resources;
 
-import br.com.fiap.javaadv.blog.backend.domainmodel.entities.AtividadeBemEstar;
 import br.com.fiap.javaadv.blog.backend.domainmodel.entities.Animal;
+import br.com.fiap.javaadv.blog.backend.domainmodel.entities.AtividadeBemEstar;
 import br.com.fiap.javaadv.blog.backend.resources.dtos.AtividadeBemEstarRequest;
 import br.com.fiap.javaadv.blog.backend.resources.dtos.AtividadeBemEstarResponse;
-import br.com.fiap.javaadv.blog.backend.services.AtividadeBemEstarService;
 import br.com.fiap.javaadv.blog.backend.services.AnimalService;
+import br.com.fiap.javaadv.blog.backend.services.AtividadeBemEstarService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/atividades-bem-estar")
 @RequiredArgsConstructor
 public class AtividadeBemEstarResource {
 
-    private final AtividadeBemEstarService atividadeBemEstarService;
+    private final AtividadeBemEstarService service;
     private final AnimalService animalService;
 
     @PostMapping
     public ResponseEntity<AtividadeBemEstarResponse> create(@Valid @RequestBody AtividadeBemEstarRequest request) {
-        Animal animal = animalService.fetchById(request.getIdAnimal())
-                .orElseThrow(() -> new RuntimeException("Animal não encontrado com ID: " + request.getIdAnimal()));
-        AtividadeBemEstar atividade = AtividadeBemEstarRequest.toEntity(request, animal);
-        AtividadeBemEstar saved = atividadeBemEstarService.create(atividade);
+        Animal animal = animalService.fetchById(UUID.fromString(request.getIdAnimal()))
+                .orElseThrow(() -> new RuntimeException("Animal não encontrado: " + request.getIdAnimal()));
+
+        AtividadeBemEstar saved = service.create(AtividadeBemEstarRequest.toEntity(request, animal));
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -157,79 +154,43 @@ public class AtividadeBemEstarResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<AtividadeBemEstarResponse>> findAll(@ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable) {
-        return ResponseEntity.ok(
-                atividadeBemEstarService.findAll(pageable)
-                        .stream()
-                        .map(AtividadeBemEstarResponse::toDto)
-                        .collect(Collectors.toList())
-        );
+    public ResponseEntity<List<AtividadeBemEstarResponse>> findAll() {
+        return ResponseEntity.ok(service.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AtividadeBemEstarResponse> findById(@PathVariable String id) {
-        return atividadeBemEstarService.findById(id)
-                .map(AtividadeBemEstarResponse::toDto)
+    public ResponseEntity<AtividadeBemEstarResponse> findById(@PathVariable UUID id) {
+        return service.findById(id)
                 .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/animal/{animalId}")
-    public ResponseEntity<List<AtividadeBemEstarResponse>> findByAnimal(@PathVariable String animalId,
-                                                                        @ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable) {
-        return ResponseEntity.ok(
-                atividadeBemEstarService.findByAnimalId(animalId, pageable)
-                        .stream()
-                        .map(AtividadeBemEstarResponse::toDto)
-                        .collect(Collectors.toList())
-        );
+    public ResponseEntity<List<AtividadeBemEstarResponse>> findByAnimal(@PathVariable UUID animalId) {
+        return ResponseEntity.ok(service.findAllByAnimalId(animalId));
     }
 
     @GetMapping("/buscar")
     public ResponseEntity<List<AtividadeBemEstarResponse>> buscarPorAtividade(
-            @RequestParam String animalId,
-            @RequestParam String atividade,
-            @ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable) {
-        return ResponseEntity.ok(
-                atividadeBemEstarService.buscarPorAtividade(animalId, atividade, pageable)
-                        .stream()
-                        .map(AtividadeBemEstarResponse::toDto)
-                        .collect(Collectors.toList())
-        );
+            @RequestParam UUID animalId, @RequestParam String atividade) {
+        return ResponseEntity.ok(service.buscarPorAtividade(animalId, atividade));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AtividadeBemEstarResponse> update(@PathVariable String id,
+    public ResponseEntity<AtividadeBemEstarResponse> update(@PathVariable UUID id,
                                                             @Valid @RequestBody AtividadeBemEstarRequest request) {
-        // Verificar se a atividade existe
-        AtividadeBemEstar atividadeExistente = atividadeBemEstarService.findById(id)
-                .orElseThrow(() -> new RuntimeException("Atividade não encontrada com ID: " + id));
+        Animal animal = animalService.fetchById(UUID.fromString(request.getIdAnimal()))
+                .orElseThrow(() -> new RuntimeException("Animal não encontrado"));
 
-        // Buscar o animal
-        Animal animal = animalService.fetchById(request.getIdAnimal())
-                .orElseThrow(() -> new RuntimeException("Animal não encontrado com ID: " + request.getIdAnimal()));
-
-        // Criar atividade atualizada
-        AtividadeBemEstar atividadeAtualizada = AtividadeBemEstarRequest.toEntity(request, animal);
-
-        // Preservar a data original e o ID
-        atividadeAtualizada.setId(id);
-        atividadeAtualizada.setDataHoraRegistro(atividadeExistente.getDataHoraRegistro());
-        atividadeAtualizada.setCategoria(atividadeExistente.getCategoria());
-
-        // Salvar
-        AtividadeBemEstar saved = atividadeBemEstarService.update(id, atividadeAtualizada)
-                .orElseThrow(() -> new RuntimeException("Erro ao atualizar atividade"));
-
-        return ResponseEntity.ok(AtividadeBemEstarResponse.toDto(saved));
+        return service.update(id, request, animal)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id) {
-        if (atividadeBemEstarService.existsById(id)) {
-            atividadeBemEstarService.delete(id);
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        if (!service.existsById(id)) return ResponseEntity.notFound().build();
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
