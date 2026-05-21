@@ -43,11 +43,7 @@ public class AtividadeBemEstar {
     @Column(name = "ANIMAL_ID", nullable = false)
     private UUID animalId;
 
-    /**
-     * Relacionamento ManyToOne para permitir buscar o nome do animal.
-     * O 'insertable = false, updatable = false' garante que o Hibernate
-     * use o campo 'animalId' acima para gerenciar a chave estrangeira.
-     */
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ANIMAL_ID", insertable = false, updatable = false)
     private Animal animal;

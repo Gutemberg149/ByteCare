@@ -1,18 +1,32 @@
 package br.com.fiap.javaadv.blog.backend.resources.dtos;
 
-import br.com.fiap.javaadv.blog.backend.domainmodel.entities.TratamentoTerapeutico;
 import br.com.fiap.javaadv.blog.backend.domainmodel.entities.Animal;
+import br.com.fiap.javaadv.blog.backend.domainmodel.entities.TratamentoTerapeutico;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
+
 import java.time.LocalDateTime;
 
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class TratamentoTerapeuticoRequest {
 
+    @NotNull(message = "O ID do animal é obrigatório")
     private String idAnimal;
+
+    // Se o seu JSON envia "nomeAnimal", esta anotação garante o mapeamento
+    @JsonProperty("nomeAnimal")
+    private String nomeAnimal;
+
+    @JsonProperty("nomeMedicamento")
+    @NotBlank(message = "O nome do medicamento é obrigatório")
     private String medicamento;
+
     private String dosagem;
     private String frequencia;
     private String duracaoTratamento;
@@ -20,18 +34,19 @@ public class TratamentoTerapeuticoRequest {
     private String categoria;
 
     /**
-     * Converte o Request DTO para a Entidade JPA.
-     * O Hibernate extrai automaticamente a chave estrangeira do objeto 'animal'.
+     * Converte os dados deste DTO em uma nova instância da Entidade.
+     * @param animal O objeto Animal carregado do banco.
+     * @return TratamentoTerapeutico preenchido.
      */
-    public static TratamentoTerapeutico toEntity(TratamentoTerapeuticoRequest request, Animal animal) {
+    public TratamentoTerapeutico toEntity(Animal animal) {
         return TratamentoTerapeutico.builder()
-                .medicamento(request.getMedicamento())
-                .dosagem(request.getDosagem())
-                .frequencia(request.getFrequencia())
-                .duracaoTratamento(request.getDuracaoTratamento())
-                .observacao(request.getObservacao())
-                .categoria(request.getCategoria())
-                .animal(animal) // O Hibernate mapeia isso para ANIMAL_ID no banco
+                .medicamento(this.medicamento)
+                .dosagem(this.dosagem)
+                .frequencia(this.frequencia)
+                .duracaoTratamento(this.duracaoTratamento)
+                .observacao(this.observacao)
+                .categoria(this.categoria)
+                .animal(animal)
                 .dataHoraRegistro(LocalDateTime.now())
                 .build();
     }
