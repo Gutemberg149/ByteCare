@@ -65,11 +65,56 @@
 //    }
 //}
 
+//package br.com.fiap.javaadv.blog.backend.domainmodel.entities;
+//
+//import jakarta.persistence.*;
+//import lombok.*;
+//
+//import java.util.Objects;
+//import java.util.UUID;
+//
+//@Entity
+//@Table(name = "ANIMAL")
+//@NoArgsConstructor
+//@AllArgsConstructor
+//@ToString
+//@Builder
+//public class Animal {
+//
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.UUID)
+//    private @Getter @Setter UUID id;
+//
+//    @Column(name = "NOME", nullable = false, length = 100)
+//    private @Getter @Setter String nome;
+//
+//    @Column(name = "TIPO", nullable = false, length = 50)
+//    private @Getter @Setter String tipo;
+//
+//    @Column(name = "ATIVO", nullable = false)
+//    private @Getter @Setter boolean ativo;
+//
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//        Animal animal = (Animal) o;
+//        return Objects.equals(id, animal.id);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return Objects.hashCode(id);
+//    }
+//
+//
+//}
+
 package br.com.fiap.javaadv.blog.backend.domainmodel.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-
+import java.time.LocalDate; // Importante!
 import java.util.Objects;
 import java.util.UUID;
 
@@ -79,20 +124,30 @@ import java.util.UUID;
 @AllArgsConstructor
 @ToString
 @Builder
+@Getter @Setter // Adicione aqui para todos os campos da classe
 public class Animal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private @Getter @Setter UUID id;
+    private UUID id;
 
     @Column(name = "NOME", nullable = false, length = 100)
-    private @Getter @Setter String nome;
+    private String nome;
 
     @Column(name = "TIPO", nullable = false, length = 50)
-    private @Getter @Setter String tipo;
+    private String tipo;
+
+    @Column(name = "RACA", length = 50) // Adicionado
+    private String raca;
+
+    @Column(name = "DATA_NASCIMENTO") // Adicionado
+    private LocalDate dataNascimento;
+
+    @Column(name = "OBSERVACAO_GERAL", length = 500) // Adicionado
+    private String observacaoGeral;
 
     @Column(name = "ATIVO", nullable = false)
-    private @Getter @Setter boolean ativo;
+    private boolean ativo;
 
     @Override
     public boolean equals(Object o) {
@@ -106,6 +161,4 @@ public class Animal {
     public int hashCode() {
         return Objects.hashCode(id);
     }
-
-
 }

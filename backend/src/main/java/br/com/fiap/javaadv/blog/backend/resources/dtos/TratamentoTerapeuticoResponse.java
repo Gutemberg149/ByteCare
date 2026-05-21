@@ -57,20 +57,21 @@ public class TratamentoTerapeuticoResponse {
     private String idAnimal;
     private String nomeAnimal;
 
-    // Converter de Entity para Response
-    public static TratamentoTerapeuticoResponse toDto(final TratamentoTerapeutico tratamentoTerapeutico) {
+    public static TratamentoTerapeuticoResponse toDto(final TratamentoTerapeutico entity) {
+        if (entity == null) return null;
+
         return TratamentoTerapeuticoResponse.builder()
-                .id(String.valueOf(tratamentoTerapeutico.getId()))
-                .nomeMedicamento(tratamentoTerapeutico.getMedicamento()) // Corrigido para getMedicamento()
-                .idAnimal(String.valueOf(tratamentoTerapeutico.getAnimalId())) // Corrigido para buscar o ID direto da entidade
-                // Como a entidade foi simplificada, os campos abaixo não existem mais nela.
-                // Mantemos os campos no DTO retornando null (ou valores padrão) para não quebrar o seu Frontend/Contrato da API.
-                .dosagem(null)
-                .frequencia(null)
-                .duracaoTratamento(null)
-                .observacao(null)
-                .categoria(null)
-                .nomeAnimal(null)
+                .id(entity.getId() != null ? entity.getId().toString() : null)
+                .nomeMedicamento(entity.getMedicamento())
+                .dosagem(entity.getDosagem())
+                .frequencia(entity.getFrequencia())
+                .duracaoTratamento(entity.getDuracaoTratamento())
+                .observacao(entity.getObservacao())
+                .categoria(entity.getCategoria())
+                // Acessamos o animal, verificamos se não é nulo e pegamos o ID
+                .idAnimal(entity.getAnimal() != null ? entity.getAnimal().getId().toString() : null)
+                // O nomeAnimal será preenchido no Service, mas já deixamos o getter aqui:
+                .nomeAnimal(entity.getAnimal() != null ? entity.getAnimal().getNome() : null)
                 .build();
     }
 }

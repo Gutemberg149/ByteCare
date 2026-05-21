@@ -96,11 +96,69 @@
 //    }
 //}
 
+//package br.com.fiap.javaadv.blog.backend.domainmodel.entities;
+//
+//import jakarta.persistence.*;
+//import lombok.*;
+//import java.time.LocalDateTime;
+//import java.util.Objects;
+//import java.util.UUID;
+//
+//@Entity
+//@Table(name = "TRATAMENTO_TERAPEUTICO")
+//@NoArgsConstructor
+//@AllArgsConstructor
+//@ToString
+//@Builder
+//@Getter @Setter
+//public class TratamentoTerapeutico {
+//
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.UUID)
+//    private UUID id;
+//
+//    @Column(name = "MEDICAMENTO", nullable = false, length = 150)
+//    private String medicamento;
+//
+//    @Column(name = "DOSAGEM")
+//    private String dosagem;
+//
+//    @Column(name = "FREQUENCIA")
+//    private String frequencia;
+//
+//    @Column(name = "DURACAO_TRATAMENTO")
+//    private String duracaoTratamento;
+//
+//    @Column(name = "OBSERVACAO")
+//    private String observacao;
+//
+//    @Column(name = "CATEGORIA")
+//    private String categoria;
+//
+//    @Column(name = "ANIMAL_ID", nullable = false)
+//    private UUID animalId;
+//
+//    @Column(name = "DATA_HORA_REGISTRO", nullable = false)
+//    private LocalDateTime dataHoraRegistro;
+//
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (!(o instanceof TratamentoTerapeutico that)) return false;
+//        return Objects.equals(id, that.id);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(id);
+//    }
+//}
+
 package br.com.fiap.javaadv.blog.backend.domainmodel.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -110,31 +168,58 @@ import java.util.UUID;
 @AllArgsConstructor
 @ToString
 @Builder
+@Getter
+@Setter
 public class TratamentoTerapeutico {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private @Getter @Setter UUID id;
+    private UUID id;
 
     @Column(name = "MEDICAMENTO", nullable = false, length = 150)
-    private @Getter @Setter String medicamento;
+    private String medicamento;
 
-    @Column(name = "ANIMAL_ID", nullable = false)
-    private @Getter @Setter UUID animalId;
+    @Column(name = "DOSAGEM")
+    private String dosagem;
+
+    @Column(name = "FREQUENCIA")
+    private String frequencia;
+
+    @Column(name = "DURACAO_TRATAMENTO")
+    private String duracaoTratamento;
+
+    @Column(name = "OBSERVACAO")
+    private String observacao;
+
+    @Column(name = "CATEGORIA")
+    private String categoria;
+
+    // Relacionamento ManyToOne: Mapeia o objeto Animal em vez de apenas o ID.
+    // FetchType.LAZY evita carregar o objeto animal desnecessariamente.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ANIMAL_ID", nullable = false)
+    private Animal animal;
+
+    @Column(name = "DATA_HORA_REGISTRO", nullable = false)
+    private LocalDateTime dataHoraRegistro;
+
+    // Garante que a data seja preenchida automaticamente ao persistir
+    @PrePersist
+    protected void onCreate() {
+        if (dataHoraRegistro == null) {
+            dataHoraRegistro = LocalDateTime.now();
+        }
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        TratamentoTerapeutico that = (TratamentoTerapeutico) o;
-        return Objects.equals(id, that.id);
+        if (!(o instanceof TratamentoTerapeutico that)) return false;
+        return id != null && id.equals(that.id);
     }
-
-    @Column(name = "DATA_HORA_REGISTRO", nullable = false)
-    private @Getter @Setter java.time.LocalDateTime dataHoraRegistro;
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hash(id);
     }
 }

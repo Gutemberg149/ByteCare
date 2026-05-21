@@ -64,10 +64,9 @@ public class RegistroCuidadoResponse {
                 .categoria(registroCuidado.getCategoria() != null ? registroCuidado.getCategoria().name() : null)
                 .dataHoraRegistro(registroCuidado.getDataHoraRegistro())
                 .observacao(registroCuidado.getDescricao())
-                .idAnimal(registroCuidado.getAnimalId() != null ? registroCuidado.getAnimalId().toString() : null)
-                // O nomeAnimal continuará null aqui, pois a entidade RegistroCuidado não possui o objeto Animal completo.
-                // Isso será resolvido no Service.
-                .nomeAnimal(null)
+                // Correção aqui: Acessamos o objeto animal e pegamos o ID dele
+                .idAnimal(registroCuidado.getAnimal() != null ? registroCuidado.getAnimal().getId().toString() : null)
+                .nomeAnimal(registroCuidado.getAnimal() != null ? registroCuidado.getAnimal().getNome() : null)
                 .build();
     }
 }

@@ -38,18 +38,16 @@ import java.util.UUID;
 @Repository
 public interface RegistroCuidadoRepository extends JpaRepository<RegistroCuidado, UUID> {
 
-    // CORRIGIDO: String -> UUID
+    // O Spring Data JPA resolve automaticamente 'animal.id' através do nome do método
     Page<RegistroCuidado> findByAnimalId(UUID animalId, Pageable pageable);
 
-    // CORRIGIDO: String -> UUID
     Page<RegistroCuidado> findByAnimalIdAndCategoria(UUID animalId,
                                                      CategoriaCuidadoEnum categoria,
                                                      Pageable pageable);
 
-    // CORRIGIDO: Tipo alterado para UUID e removido o ORDER BY por um campo inexistente (dataHoraRegistro)
-    @Query("SELECT r FROM RegistroCuidado r WHERE r.animalId = :animalId")
+    // Refatorado para usar o relacionamento 'r.animal.id'
+    @Query("SELECT r FROM RegistroCuidado r WHERE r.animal.id = :animalId")
     Page<RegistroCuidado> buscarDiarioPorAnimal(@Param("animalId") UUID animalId, Pageable pageable);
 
-    // CORRIGIDO: String -> UUID
     long countByAnimalIdAndCategoria(UUID animalId, CategoriaCuidadoEnum categoria);
 }

@@ -130,12 +130,63 @@
 //    }
 //}
 
+//package br.com.fiap.javaadv.blog.backend.domainmodel.entities;
+//
+//import br.com.fiap.javaadv.blog.backend.domainmodel.enums.CategoriaCuidadoEnum;
+//import jakarta.persistence.*;
+//import lombok.*;
+//import java.time.LocalDateTime; // Import necessário
+//import java.util.Objects;
+//import java.util.UUID;
+//
+//@Entity
+//@Table(name = "REGISTRO_CUIDADO")
+//@NoArgsConstructor
+//@AllArgsConstructor
+//@ToString
+//@Builder
+//@Getter // Adicionado para toda a classe
+//@Setter // Adicionado para toda a classe
+//public class RegistroCuidado {
+//
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.UUID)
+//    private UUID id;
+//
+//    @Enumerated(EnumType.STRING)
+//    @Column(name = "CATEGORIA", nullable = false, length = 50)
+//    private CategoriaCuidadoEnum categoria;
+//
+//    @Column(name = "ANIMAL_ID", nullable = false)
+//    private UUID animalId;
+//
+//    // Adicionado os campos que estavam faltando
+//    @Column(name = "DESCRICAO", length = 500)
+//    private String descricao;
+//
+//    @Column(name = "DATA_HORA_REGISTRO")
+//    private LocalDateTime dataHoraRegistro;
+//
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//        RegistroCuidado that = (RegistroCuidado) o;
+//        return Objects.equals(id, that.id);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return Objects.hashCode(id);
+//    }
+//}
+
 package br.com.fiap.javaadv.blog.backend.domainmodel.entities;
 
 import br.com.fiap.javaadv.blog.backend.domainmodel.enums.CategoriaCuidadoEnum;
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime; // Import necessário
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -145,8 +196,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @ToString
 @Builder
-@Getter // Adicionado para toda a classe
-@Setter // Adicionado para toda a classe
+@Getter
+@Setter
 public class RegistroCuidado {
 
     @Id
@@ -157,26 +208,32 @@ public class RegistroCuidado {
     @Column(name = "CATEGORIA", nullable = false, length = 50)
     private CategoriaCuidadoEnum categoria;
 
-    @Column(name = "ANIMAL_ID", nullable = false)
-    private UUID animalId;
+    // Refatorado: Mapeamento de relacionamento real
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ANIMAL_ID", nullable = false)
+    private Animal animal;
 
-    // Adicionado os campos que estavam faltando
     @Column(name = "DESCRICAO", length = 500)
     private String descricao;
 
-    @Column(name = "DATA_HORA_REGISTRO")
+    @Column(name = "DATA_HORA_REGISTRO", nullable = false)
     private LocalDateTime dataHoraRegistro;
+
+    // Garante que a data seja preenchida automaticamente ao persistir
+    @PrePersist
+    protected void onCreate() {
+        dataHoraRegistro = LocalDateTime.now();
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        RegistroCuidado that = (RegistroCuidado) o;
-        return Objects.equals(id, that.id);
+        if (!(o instanceof RegistroCuidado that)) return false;
+        return id != null && id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hash(id);
     }
 }

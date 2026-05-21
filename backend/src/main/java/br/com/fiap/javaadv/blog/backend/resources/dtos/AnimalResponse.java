@@ -41,6 +41,7 @@ import br.com.fiap.javaadv.blog.backend.domainmodel.enums.TipoAnimalEnum;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -48,7 +49,7 @@ import java.time.LocalDate;
 @Data
 public class AnimalResponse {
 
-    private String id;
+    private UUID id; // Alterado para UUID, já que na entidade é UUID
     private String nome;
     private TipoAnimalEnum tipo;
     private String raca;
@@ -62,15 +63,21 @@ public class AnimalResponse {
         }
 
         return AnimalResponse.builder()
-                .id(animal.getId() != null ? String.valueOf(animal.getId()) : null)
+                .id(animal.getId())
                 .nome(animal.getNome())
-                // Converte a String vinda do banco para o TipoAnimalEnum mapeado no DTO
-                .tipo(animal.getTipo() != null ? TipoAnimalEnum.valueOf(animal.getTipo().toUpperCase()) : null)
-                // Esses campos não existem na sua entidade atual, então retornamos null para o JSON
-                .raca(null)
-                .dataNascimento(null)
-                .observacaoGeral(null)
+                .tipo(parseTipo(animal.getTipo()))
+                .raca(animal.getRaca())              // CORRIGIDO: mapeando o valor real
+                .dataNascimento(animal.getDataNascimento()) // CORRIGIDO: mapeando o valor real
+                .observacaoGeral(animal.getObservacaoGeral()) // CORRIGIDO: mapeando o valor real
                 .ativo(animal.isAtivo())
                 .build();
+    }
+
+    private static TipoAnimalEnum parseTipo(String tipo) {
+        try {
+            return (tipo != null) ? TipoAnimalEnum.valueOf(tipo.toUpperCase()) : null;
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return null;
+        }
     }
 }

@@ -1,159 +1,109 @@
 //package br.com.fiap.javaadv.blog.backend.resources;
 //
-//import br.com.fiap.javaadv.blog.backend.domainmodel.entities.Animal;
+//import br.com.fiap.javaadv.blog.backend.config.docs.ApiStandardErrors;
 //import br.com.fiap.javaadv.blog.backend.domainmodel.enums.TipoAnimalEnum;
 //import br.com.fiap.javaadv.blog.backend.resources.dtos.AnimalRequest;
 //import br.com.fiap.javaadv.blog.backend.resources.dtos.AnimalResponse;
 //import br.com.fiap.javaadv.blog.backend.services.AnimalService;
+//import io.swagger.v3.oas.annotations.Operation;
+//import io.swagger.v3.oas.annotations.responses.ApiResponse;
+//import io.swagger.v3.oas.annotations.tags.Tag;
 //import jakarta.validation.Valid;
 //import lombok.RequiredArgsConstructor;
-//import org.springdoc.core.annotations.ParameterObject;
-//import org.springframework.data.domain.Pageable;
-//import org.springframework.data.web.PageableDefault;
 //import org.springframework.http.ResponseEntity;
 //import org.springframework.web.bind.annotation.*;
 //import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 //
 //import java.net.URI;
 //import java.util.List;
-//import java.util.stream.Collectors;
+//import java.util.UUID;
 //
 //@RestController
 //@RequestMapping("/api/animais")
 //@RequiredArgsConstructor
+//@Tag(name = "Animais", description = "Endpoints para gerenciamento de animais")
 //public class AnimalResource {
 //
 //    private final AnimalService animalService;
 //
 //    @PostMapping
+//    @Operation(summary = "Cadastrar um novo animal")
+//    @ApiResponse(responseCode = "201", description = "Animal criado com sucesso")
+//    @ApiStandardErrors
 //    public ResponseEntity<AnimalResponse> create(@Valid @RequestBody AnimalRequest request) {
-//        Animal animal = request.toEntity();
-//        Animal savedAnimal = animalService.create(animal);
+//        var savedAnimal = animalService.create(request.toEntity());
 //
 //        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-//                .path("/{id}")
-//                .buildAndExpand(savedAnimal.getId())
-//                .toUri();
+//                .path("/{id}").buildAndExpand(savedAnimal.getId()).toUri();
 //
-//        return ResponseEntity.created(location)
-//                .body(AnimalResponse.toDto(savedAnimal));
+//        return ResponseEntity.created(location).body(AnimalResponse.toDto(savedAnimal));
 //    }
 //
 //    @PutMapping("/{id}")
-//    public ResponseEntity<AnimalResponse> update(@PathVariable String id, @Valid @RequestBody AnimalRequest request) {
-//        if (!animalService.existsById(id)) {
-//            return ResponseEntity.notFound().build();
-//        }
-//
-//        Animal animal = request.toEntity();
-//        animal.setId(id);
-//
-//        Animal updated = animalService.update(id, animal)
-//                .orElseThrow(() -> new RuntimeException("Erro ao atualizar animal"));
-//
-//        return ResponseEntity.ok(AnimalResponse.toDto(updated));
+//    @Operation(summary = "Atualizar dados de um animal")
+//    @ApiStandardErrors
+//    public ResponseEntity<AnimalResponse> update(@PathVariable UUID id, @Valid @RequestBody AnimalRequest request) {
+//        return animalService.update(id, request.toEntity())
+//                .map(animal -> ResponseEntity.ok(AnimalResponse.toDto(animal)))
+//                .orElse(ResponseEntity.notFound().build());
 //    }
 //
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<Void> deleteById(@PathVariable String id) {
-//        if (animalService.existsById(id)) {
-//            animalService.delete(id);
-//            return ResponseEntity.noContent().build();
-//        }
-//        return ResponseEntity.notFound().build();
-//    }
-//
-//    @GetMapping("/listar")
-//    public ResponseEntity<List<AnimalResponse>> fetchAll(@ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable) {
-//        return ResponseEntity.ok(
-//                animalService.fetchAll(pageable)
-//                        .stream()
-//                        .map(AnimalResponse::toDto)
-//                        .collect(Collectors.toList())
-//        );
+//    @GetMapping
+//    @Operation(summary = "Listar todos os animais")
+//    public ResponseEntity<List<AnimalResponse>> findAll() {
+//        return ResponseEntity.ok(animalService.findAll().stream().map(AnimalResponse::toDto).toList());
 //    }
 //
 //    @GetMapping("/{id}")
-//    public ResponseEntity<AnimalResponse> fetchById(@PathVariable String id) {
+//    @Operation(summary = "Buscar animal por ID")
+//    public ResponseEntity<AnimalResponse> fetchById(@PathVariable UUID id) {
 //        return animalService.fetchById(id)
-//                .map(AnimalResponse::toDto)
-//                .map(ResponseEntity::ok)
-//                .orElseGet(() -> ResponseEntity.notFound().build());
-//    }
-//
-//    @GetMapping("/ativos")
-//    public ResponseEntity<List<AnimalResponse>> fetchAtivos() {
-//        return ResponseEntity.ok(
-//                animalService.findByAtivoTrue()
-//                        .stream()
-//                        .map(AnimalResponse::toDto)
-//                        .collect(Collectors.toList())
-//        );
+//                .map(a -> ResponseEntity.ok(AnimalResponse.toDto(a)))
+//                .orElse(ResponseEntity.notFound().build());
 //    }
 //
 //    @GetMapping("/tipo/{tipo}")
+//    @Operation(summary = "Buscar animais por tipo")
 //    public ResponseEntity<List<AnimalResponse>> fetchByTipo(@PathVariable String tipo) {
 //        try {
-//            TipoAnimalEnum tipoEnum = TipoAnimalEnum.valueOf(tipo.toUpperCase());
-//            return ResponseEntity.ok(
-//                    animalService.findByTipo(tipoEnum)
-//                            .stream()
-//                            .map(AnimalResponse::toDto)
-//                            .collect(Collectors.toList())
-//            );
+//            var tipoEnum = TipoAnimalEnum.valueOf(tipo.toUpperCase());
+//            return ResponseEntity.ok(animalService.findByTipo(tipoEnum).stream().map(AnimalResponse::toDto).toList());
 //        } catch (IllegalArgumentException e) {
 //            return ResponseEntity.badRequest().build();
 //        }
 //    }
 //
-//    @GetMapping("/nome/{nome}")
-//    public ResponseEntity<List<AnimalResponse>> fetchByNome(@PathVariable String nome) {
-//        return ResponseEntity.ok(
-//                animalService.findByNomeContaining(nome)
-//                        .stream()
-//                        .map(AnimalResponse::toDto)
-//                        .collect(Collectors.toList())
-//        );
+//    @DeleteMapping("/{id}")
+//    @Operation(summary = "Remover um animal")
+//    @ApiResponse(responseCode = "204")
+//    public ResponseEntity<Void> deleteById(@PathVariable UUID id) {
+//        if (!animalService.existsById(id)) return ResponseEntity.notFound().build();
+//        animalService.delete(id);
+//        return ResponseEntity.noContent().build();
 //    }
 //
-//    @PatchMapping("/{id}/desativar")
-//    public ResponseEntity<Void> desativar(@PathVariable String id) {
-//        return animalService.fetchById(id)
-//                .map(animal -> {
-//                    animalService.desativar(id);
-//                    return ResponseEntity.noContent().<Void>build();
-//                })
-//                .orElseGet(() -> ResponseEntity.notFound().build());
-//    }
-//
-//    @PatchMapping("/{id}/ativar")
-//    public ResponseEntity<Void> ativar(@PathVariable String id) {
-//        return animalService.fetchById(id)
-//                .map(animal -> {
-//                    animalService.ativar(id);
-//                    return ResponseEntity.noContent().<Void>build();
-//                })
-//                .orElseGet(() -> ResponseEntity.notFound().build());
-//    }
-//
-//    @GetMapping
-//    public ResponseEntity<List<AnimalResponse>> findAll(@ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable) {
-//        return ResponseEntity.ok(
-//                animalService.fetchAll(pageable)
-//                        .stream()
-//                        .map(AnimalResponse::toDto)
-//                        .collect(Collectors.toList())
-//        );
+//    @PatchMapping("/{id}/{status}")
+//    @Operation(summary = "Ativar ou desativar animal")
+//    public ResponseEntity<Void> toggleStatus(@PathVariable UUID id, @PathVariable String status) {
+//        try {
+//            if ("ativar".equalsIgnoreCase(status)) animalService.ativar(id);
+//            else if ("desativar".equalsIgnoreCase(status)) animalService.desativar(id);
+//            else return ResponseEntity.badRequest().build();
+//            return ResponseEntity.noContent().build();
+//        } catch (RuntimeException e) {
+//            return ResponseEntity.notFound().build();
+//        }
 //    }
 //}
 
 package br.com.fiap.javaadv.blog.backend.resources;
 
-import br.com.fiap.javaadv.blog.backend.domainmodel.entities.Animal;
+import br.com.fiap.javaadv.blog.backend.config.docs.ApiStandardErrors;
 import br.com.fiap.javaadv.blog.backend.domainmodel.enums.TipoAnimalEnum;
 import br.com.fiap.javaadv.blog.backend.resources.dtos.AnimalRequest;
 import br.com.fiap.javaadv.blog.backend.resources.dtos.AnimalResponse;
 import br.com.fiap.javaadv.blog.backend.services.AnimalService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -163,114 +113,46 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/animais")
 @RequiredArgsConstructor
+@Tag(name = "Animais")
 public class AnimalResource {
 
-    private final AnimalService animalService;
+    private final AnimalService service;
 
     @PostMapping
-    public ResponseEntity<AnimalResponse> create(@Valid @RequestBody AnimalRequest request) {
-        Animal animal = request.toEntity();
-        Animal savedAnimal = animalService.create(animal);
-
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(savedAnimal.getId())
-                .toUri();
-
-        return ResponseEntity.created(location)
-                .body(AnimalResponse.toDto(savedAnimal));
+    public ResponseEntity<AnimalResponse> create(@Valid @RequestBody AnimalRequest req) {
+        var saved = service.create(req.toEntity());
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(saved.getId()).toUri();
+        return ResponseEntity.created(uri).body(AnimalResponse.toDto(saved));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AnimalResponse> update(@PathVariable UUID id, @Valid @RequestBody AnimalRequest request) {
-        if (!animalService.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Animal animal = request.toEntity();
-        animal.setId(id);
-
-        Animal updated = animalService.update(id, animal)
-                .orElseThrow(() -> new RuntimeException("Erro ao atualizar animal"));
-
-        return ResponseEntity.ok(AnimalResponse.toDto(updated));
+    public ResponseEntity<AnimalResponse> update(@PathVariable UUID id, @Valid @RequestBody AnimalRequest req) {
+        return ResponseEntity.ok(AnimalResponse.toDto(service.update(id, req.toEntity())));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable UUID id) {
-        if (animalService.existsById(id)) {
-            animalService.delete(id);
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
-    }
-
-    // Unificado e simplificado para usar a listagem limpa e ordenada do Service
     @GetMapping
     public ResponseEntity<List<AnimalResponse>> findAll() {
-        return ResponseEntity.ok(
-                animalService.findAll()
-                        .stream()
-                        .map(AnimalResponse::toDto)
-                        .collect(Collectors.toList())
-        );
+        return ResponseEntity.ok(service.findAll().stream().map(AnimalResponse::toDto).toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AnimalResponse> fetchById(@PathVariable UUID id) {
-        return animalService.fetchById(id)
-                .map(AnimalResponse::toDto)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<AnimalResponse> getById(@PathVariable UUID id) {
+        return ResponseEntity.ok(AnimalResponse.toDto(service.fetchById(id)));
     }
 
-    @GetMapping("/tipo/{tipo}")
-    public ResponseEntity<List<AnimalResponse>> fetchByTipo(@PathVariable String tipo) {
-        try {
-            TipoAnimalEnum tipoEnum = TipoAnimalEnum.valueOf(tipo.toUpperCase());
-            return ResponseEntity.ok(
-                    animalService.findByTipo(tipoEnum)
-                            .stream()
-                            .map(AnimalResponse::toDto)
-                            .collect(Collectors.toList())
-            );
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/nome/{nome}")
-    public ResponseEntity<List<AnimalResponse>> fetchByNome(@PathVariable String nome) {
-        return ResponseEntity.ok(
-                animalService.findByNomeContaining(nome)
-                        .stream()
-                        .map(AnimalResponse::toDto)
-                        .collect(Collectors.toList())
-        );
-    }
-
-    @PatchMapping("/{id}/desativar")
-    public ResponseEntity<Void> desativar(@PathVariable UUID id) {
-        return animalService.fetchById(id)
-                .map(animal -> {
-                    animalService.desativar(id);
-                    return ResponseEntity.noContent().<Void>build();
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @PatchMapping("/{id}/ativar")
-    public ResponseEntity<Void> ativar(@PathVariable UUID id) {
-        return animalService.fetchById(id)
-                .map(animal -> {
-                    animalService.ativar(id);
-                    return ResponseEntity.noContent().<Void>build();
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    @PatchMapping("/{id}/{status}")
+    public ResponseEntity<Void> patch(@PathVariable UUID id, @PathVariable String status) {
+        service.setStatus(id, "ativar".equalsIgnoreCase(status));
+        return ResponseEntity.noContent().build();
     }
 }
