@@ -48,9 +48,21 @@ public class DataLoader implements CommandLineRunner {
         saveTratamento("Amoxicilina", "500mg", "12/12h", "7 dias", "Após refeição", "Antibiótico", a1);
         saveTratamento("Dipirona", "200mg", "8/8h", "5 dias", "Para febre", "Analgésico", a2);
 
-        // 5. Registros
-        saveRegistro("Banho completo", CategoriaCuidadoEnum.BEM_ESTAR, a1);
-        saveRegistro("Corte de unhas", CategoriaCuidadoEnum.BEM_ESTAR, a2);
+
+        // 1. Registro com descrição e categoria
+        saveRegistro("Banho completo com shampoo neutro", CategoriaCuidadoEnum.BEM_ESTAR,
+                a1, LocalDateTime.now()
+        );
+
+        // 2. Registro com outra descrição
+        saveRegistro("Corte de unhas e limpeza de ouvidos", CategoriaCuidadoEnum.TERAPEUTICO,
+                a2, LocalDateTime.now().minusDays(1)
+        );
+
+        // 3. Registro para outro animal
+        saveRegistro("Vacina anual aplicada",
+                CategoriaCuidadoEnum.TERAPEUTICO, a3, LocalDateTime.now()
+        );
     }
 
     private Animal criarAnimal(String nome, TipoAnimalEnum tipo, String raca, String nasc, String obs, boolean ativo) {
@@ -82,8 +94,14 @@ public class DataLoader implements CommandLineRunner {
                 .observacao(obs).categoria(cat).dataHoraRegistro(LocalDateTime.now()).animal(a).build());
     }
 
-    private void saveRegistro(String desc, CategoriaCuidadoEnum cat, Animal a) {
+
+    private void saveRegistro(String desc, CategoriaCuidadoEnum cat, Animal a, LocalDateTime data) {
         registroCuidadoRepository.save(RegistroCuidado.builder()
-                .descricao(desc).categoria(cat).animal(a).dataHoraRegistro(LocalDateTime.now()).build());
+                .descricao(desc)
+                .categoria(cat)
+                .animal(a)
+                .animalId(a.getId())
+                .dataHoraRegistro(data)
+                .build());
     }
 }

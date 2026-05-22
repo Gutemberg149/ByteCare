@@ -3,6 +3,7 @@ package br.com.fiap.javaadv.blog.backend.services;
 import br.com.fiap.javaadv.blog.backend.datasource.repositories.AnimalRepository;
 import br.com.fiap.javaadv.blog.backend.domainmodel.entities.Animal;
 import br.com.fiap.javaadv.blog.backend.domainmodel.enums.TipoAnimalEnum;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -31,28 +32,25 @@ public class AnimalService {
     @Transactional
     @CachePut(value = "animais", key = "#id")
     public Animal update(UUID id, Animal novo) {
-
-        System.out.println("DEBUG: Atualizando animal " + id + " com raca=" + novo.getRaca());
-
         return animalRepository.findById(id)
                 .map(existente -> {
-
                     existente.setNome(novo.getNome());
                     existente.setTipo(novo.getTipo());
                     existente.setRaca(novo.getRaca());
                     existente.setDataNascimento(novo.getDataNascimento());
                     existente.setObservacaoGeral(novo.getObservacaoGeral());
                     existente.setAtivo(novo.isAtivo());
-
                     return animalRepository.save(existente);
                 })
-                .orElseThrow(() -> new RuntimeException("Animal não encontrado para o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Animal não encontrado para o ID: " + id));
     }
 
     @Transactional
     @CacheEvict(value = "animais", key = "#id")
     public void delete(UUID id) {
-        if (!animalRepository.existsById(id)) throw new RuntimeException("ID não encontrado");
+        if (!animalRepository.existsById(id)) {
+            throw new EntityNotFoundException("Animal não encontrado para exclusão com ID: " + id);
+        }
         animalRepository.deleteById(id);
     }
 
@@ -60,7 +58,9 @@ public class AnimalService {
 
     @Cacheable(value = "animais", key = "#id")
     public Animal fetchById(UUID id) {
-        return animalRepository.findById(id).orElseThrow(() -> new RuntimeException("Não encontrado"));
+
+        return animalRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Animal não encontrado com ID: " + id));
     }
 
     public List<Animal> findAll() { return animalRepository.findAllByOrderByNomeAsc(); }

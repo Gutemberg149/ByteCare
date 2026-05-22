@@ -34,13 +34,9 @@ public class AcaoPreventivaRequest {
     @Size(max = 500, message = "A observação deve ter no máximo 500 caracteres")
     private String observacao;
 
-    // Adicionado para permitir o envio da categoria pelo Postman
+
     private String categoria;
 
-    /**
-     * Converte o DTO para a Entidade, garantindo que todos os campos
-     * (inclusive Categoria e Data) sejam populados.
-     */
     public static AcaoPreventiva toEntity(final AcaoPreventivaRequest dto, final Animal animal) {
         return AcaoPreventiva.preventivoBuilder()
                 .nomeServico(dto.getNomeServico())
@@ -48,9 +44,7 @@ public class AcaoPreventivaRequest {
                 .proximoPrevisto(dto.getProximoPrevisto())
                 .observacao(dto.getObservacao())
                 .animal(animal)
-                // Converte a String do JSON para o Enum correspondente
                 .categoria(dto.getCategoria() != null ? CategoriaCuidadoEnum.valueOf(dto.getCategoria().toUpperCase()) : null)
-                // Define a data atual caso não tenha sido enviada
                 .dataHoraRegistro(LocalDateTime.now())
                 .build();
     }

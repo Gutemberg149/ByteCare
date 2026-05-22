@@ -19,7 +19,6 @@ public class TratamentoTerapeuticoRequest {
     @NotNull(message = "O ID do animal é obrigatório")
     private String idAnimal;
 
-    // Se o seu JSON envia "nomeAnimal", esta anotação garante o mapeamento
     @JsonProperty("nomeAnimal")
     private String nomeAnimal;
 
@@ -33,11 +32,7 @@ public class TratamentoTerapeuticoRequest {
     private String observacao;
     private String categoria;
 
-    /**
-     * Converte os dados deste DTO em uma nova instância da Entidade.
-     * @param animal O objeto Animal carregado do banco.
-     * @return TratamentoTerapeutico preenchido.
-     */
+
     public TratamentoTerapeutico toEntity(Animal animal) {
         return TratamentoTerapeutico.builder()
                 .medicamento(this.medicamento)

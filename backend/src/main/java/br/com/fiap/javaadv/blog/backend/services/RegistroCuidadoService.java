@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
 import java.util.UUID;
 
 @Service
@@ -22,8 +23,6 @@ public class RegistroCuidadoService {
 
     private final RegistroCuidadoRepository repository;
     private final AnimalRepository animalRepository;
-
-
 
     @Transactional
     public RegistroCuidado create(RegistroCuidadoRequest request) {
@@ -38,8 +37,11 @@ public class RegistroCuidadoService {
 
         existente.setCategoria(request.getCategoria());
         existente.setDescricao(request.getDescricao());
-        existente.setDataHoraRegistro(request.getDataHoraRegistro());
+
+        existente.setDataHoraRegistro(request.getDataRegistro().atTime(LocalTime.now()));
+
         existente.setAnimal(novoAnimal);
+        existente.setAnimalId(novoAnimal.getId());
 
         return repository.save(existente);
     }
@@ -51,7 +53,6 @@ public class RegistroCuidadoService {
         }
         repository.deleteById(id);
     }
-
 
     @Transactional(readOnly = true)
     public RegistroCuidado findByIdOrThrow(UUID id) {
@@ -79,10 +80,13 @@ public class RegistroCuidadoService {
         return repository.buscarDiarioPorAnimal(animalId, pageable);
     }
 
-
     private Animal findAnimalOrThrow(String idAnimal) {
-        return animalRepository.findById(UUID.fromString(idAnimal))
-                .orElseThrow(() -> new EntityNotFoundException("Animal não encontrado com ID: " + idAnimal));
+        try {
+            return animalRepository.findById(UUID.fromString(idAnimal))
+                    .orElseThrow(() -> new EntityNotFoundException("Animal não encontrado com ID: " + idAnimal));
+        } catch (IllegalArgumentException e) {
+            throw new EntityNotFoundException("Formato de ID inválido: " + idAnimal);
+        }
     }
 
     public RegistroCuidadoResponse toResponse(RegistroCuidado entity) {

@@ -20,7 +20,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/atividades-bem-estar")
 @RequiredArgsConstructor
-@Tag(name = "Atividades de Bem-Estar")
+@Tag(name = "Atividades de Bem-Estar", description = "Endpoints para gerenciamento de atividades de bem-estar")
 public class AtividadeBemEstarResource {
 
     private final AtividadeBemEstarService service;
@@ -30,8 +30,10 @@ public class AtividadeBemEstarResource {
     @Operation(summary = "Criar nova atividade de bem-estar")
     @ApiStandardErrors
     public ResponseEntity<AtividadeBemEstarResponse> create(@Valid @RequestBody AtividadeBemEstarRequest request) {
+        // Validação defensiva do UUID para evitar erro 500 no parse
+        UUID animalId = parseUuid(request.getIdAnimal(), "idAnimal");
 
-        var animal = animalService.fetchById(UUID.fromString(request.getIdAnimal()));
+        var animal = animalService.fetchById(animalId);
         var saved = service.create(AtividadeBemEstarRequest.toEntity(request, animal));
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -41,46 +43,55 @@ public class AtividadeBemEstarResource {
     }
 
     @GetMapping
+    @Operation(summary = "Listar todas as atividades")
     public ResponseEntity<List<AtividadeBemEstarResponse>> findAll() {
         return ResponseEntity.ok(service.findAll());
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Buscar atividade por ID")
+    @ApiStandardErrors
     public ResponseEntity<AtividadeBemEstarResponse> findById(@PathVariable UUID id) {
-        return service.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(service.findById(id));
     }
 
     @GetMapping("/animal/{animalId}")
+    @Operation(summary = "Listar atividades por animal")
     public ResponseEntity<List<AtividadeBemEstarResponse>> findByAnimal(@PathVariable UUID animalId) {
         return ResponseEntity.ok(service.findAllByAnimalId(animalId));
     }
 
     @GetMapping("/buscar")
+    @Operation(summary = "Buscar atividades por animal e nome")
     public ResponseEntity<List<AtividadeBemEstarResponse>> buscarPorAtividade(
             @RequestParam UUID animalId, @RequestParam String atividade) {
         return ResponseEntity.ok(service.buscarPorAtividade(animalId, atividade));
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Atualizar atividade de bem-estar")
+    @ApiStandardErrors
     public ResponseEntity<AtividadeBemEstarResponse> update(@PathVariable UUID id,
                                                             @Valid @RequestBody AtividadeBemEstarRequest request) {
-        var animal = animalService.fetchById(UUID.fromString(request.getIdAnimal()));
+        UUID animalId = parseUuid(request.getIdAnimal(), "idAnimal");
+        var animal = animalService.fetchById(animalId);
 
-        if (animal == null) {
-            throw new IllegalArgumentException("Animal não encontrado com ID: " + request.getIdAnimal());
-        }
-
-        return service.update(id, request, animal)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(service.update(id, request, animal));
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Excluir atividade")
+    @ApiStandardErrors
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        if (!service.existsById(id)) return ResponseEntity.notFound().build();
         service.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private UUID parseUuid(String uuidString, String fieldName) {
+        try {
+            return UUID.fromString(uuidString);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("O campo '" + fieldName + "' não é um UUID válido: " + uuidString);
+        }
     }
 }

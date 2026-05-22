@@ -25,8 +25,12 @@ public class RegistroCuidado {
     @Column(name = "CATEGORIA", nullable = false, length = 50)
     private CategoriaCuidadoEnum categoria;
 
+
+    @Column(name = "ANIMAL_ID", nullable = false)
+    private UUID animalId;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ANIMAL_ID", nullable = false)
+    @JoinColumn(name = "ANIMAL_ID", insertable = false, updatable = false)
     private Animal animal;
 
     @Column(name = "DESCRICAO", length = 500)
@@ -35,10 +39,11 @@ public class RegistroCuidado {
     @Column(name = "DATA_HORA_REGISTRO", nullable = false)
     private LocalDateTime dataHoraRegistro;
 
-
     @PrePersist
     protected void onCreate() {
-        dataHoraRegistro = LocalDateTime.now();
+        if (dataHoraRegistro == null) {
+            dataHoraRegistro = LocalDateTime.now();
+        }
     }
 
     @Override

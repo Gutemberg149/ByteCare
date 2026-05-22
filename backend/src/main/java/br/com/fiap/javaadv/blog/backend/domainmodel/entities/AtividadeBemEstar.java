@@ -39,7 +39,7 @@ public class AtividadeBemEstar {
     @Column(name = "DATA_HORA_REGISTRO", nullable = false)
     private LocalDateTime dataHoraRegistro;
 
-    // Campo para manter a compatibilidade com o legado/banco
+    
     @Column(name = "ANIMAL_ID", nullable = false)
     private UUID animalId;
 
