@@ -2,7 +2,7 @@
 
 # 🐾 ByteCare 
 
-**API REST para gestão de clínicas veterinárias**
+**API REST para gestão da saúde do PET**
 
 </div>
 
@@ -22,10 +22,9 @@
 ## 📖 Descrição e Solução
 
 O **ByteCare** é uma API REST, desenvolvida em **Java com Spring Boot**, projetada 
-para otimizar a gestão de clínicas veterinárias e o acompanhamento domiciliar de animais. 
+para otimizar a gestão da saúde do PET e o acompanhamento domiciliar dos animais. 
 A solução centraliza o histórico clínico e de rotina, oferecendo um sistema eficiente para:
 
-- Pet **registro do pet**
 - Registro de **tratamentos terapêuticos**
 - Gestão de **ações preventivas**
 - Acompanhamento de **cuidados diários**
