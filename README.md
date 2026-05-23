@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🐾 ByteCare — MedVet API
+# 🐾 ByteCare 
 
 **API REST para gestão de clínicas veterinárias**
 
@@ -21,17 +21,17 @@
 
 ## 📖 Descrição e Solução
 
-O **MedVet** é uma API REST, desenvolvida em **Java com Spring Boot**, projetada 
+O **ByteCare** é uma API REST, desenvolvida em **Java com Spring Boot**, projetada 
 para otimizar a gestão de clínicas veterinárias e o acompanhamento domiciliar de animais. 
 A solução centraliza o histórico clínico e de rotina, oferecendo um sistema eficiente para:
 
+- Pet **registro do pet**
 - Registro de **tratamentos terapêuticos**
-- Controle de **atividades de bem-estar**
 - Gestão de **ações preventivas**
 - Acompanhamento de **cuidados diários**
 
 O objetivo é garantir a integridade dos dados e facilitar o acesso a informações essenciais para a 
-saúde animal.
+saúde pet.
 
 ---
 
@@ -226,7 +226,7 @@ saúde animal.
 
 <div align="center">
 
-Feito com ❤️ pela equipe **ByteCare**
+Feito pela equipe **ByteCare**
 
 **Gutemberg Rocha · Erik Naoki  · Gustavo Arthur  · Juliana da Silva · João Henrique**
 
