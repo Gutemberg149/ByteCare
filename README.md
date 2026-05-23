@@ -228,6 +228,6 @@ saúde animal.
 
 Feito com ❤️ pela equipe **ByteCare**
 
-**Gutemberg · Erick · Gustavo · Julia · João**
+**Gutemberg Rocha · Erik Naoki  · Gustavo Arthur  · Juliana da Silva · João Henrique**
 
 </div>
