@@ -24,6 +24,21 @@
 
 	<dependencies>
 
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-oracle</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
 		<!-- WEB -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -117,6 +132,25 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<version>11.7.2</version>
+				<configuration>
+					<url>jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL</url>
+					<user>rm562267</user>
+					<password>fiap26</password>
+					<locations>classpath:db/migration</locations>
+					<baselineOnMigrate>true</baselineOnMigrate>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>com.oracle.database.jdbc</groupId>
+						<artifactId>ojdbc11</artifactId>
+						<version>23.7.0.25.01</version>
+					</dependency>
+				</dependencies>
+			</plugin>
 
 			<!-- SPRING BOOT -->
 			<plugin>

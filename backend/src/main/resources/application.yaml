@@ -1,133 +1,7 @@
-#spring:
-#  application:
-#    name: bytecare
-#
-#  # ========== CONFIGURAÇÃO ORACLE ==========
-#  datasource:
-#    url: jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL
-#    driver-class-name: oracle.jdbc.OracleDriver
-#    username: rm562267
-#    password: fiap26
-#
-#    hikari:
-#      connection-timeout: 30000
-#      maximum-pool-size: 10
-#      minimum-idle: 2
-#      idle-timeout: 600000
-#      max-lifetime: 1800000
-#      connection-test-query: SELECT 1 FROM DUAL
-#      pool-name: bytecareOracleHikariPool
-#      auto-commit: false
-#      validation-timeout: 5000
-#      leak-detection-threshold: 60000
-#
-#  # ========== JPA/HIBERNATE PARA ORACLE ==========
-#  jpa:
-#    hibernate:
-#      ddl-auto: update
-#      naming:
-#        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-#
-#    show-sql: true
-#    generate-ddl: true
-#    defer-datasource-initialization: true
-#
-#    properties:
-#      hibernate:
-#        dialect: org.hibernate.dialect.OracleDialect
-#        format_sql: true
-#        use_sql_comments: true
-#
-#        jdbc:
-#          batch_size: 30
-#          fetch_size: 100
-#
-#        order_inserts: true
-#        order_updates: true
-#
-#    database-platform: org.hibernate.dialect.OracleDialect
-#    database: ORACLE
-#    open-in-view: false
-#
-#  # ========== CONFIGURAÇÕES GERAIS ==========
-#  main:
-#    banner-mode: console
-#    allow-circular-references: false
-#
-#  mvc:
-#    servlet:
-#      load-on-startup: 1
-#    format:
-#      date: yyyy-MM-dd
-#      date-time: yyyy-MM-dd HH:mm:ss
-#
-#  web:
-#    error:
-#      include-binding-errors: always
-#      include-stacktrace: never
-#      include-message: always
-#      include-exception: false
-#
-## ========== SPRINGDOC OPENAPI ==========
-#springdoc:
-#  api-docs:
-#    path: /api-docs
-#    enabled: true
-#  swagger-ui:
-#    path: /swagger-ui.html
-#    tags-sorter: alpha
-#    operations-sorter: alpha
-#    display-request-duration: true
-#    filter: true
-#    enabled: true
-#    try-it-out-enabled: true
-#    doc-expansion: none
-#
-#  info:
-#    title: ByteCare API
-#    description: API para gerenciamento de cuidados com animais de estimação.
-#    version: 1.0.0
-#    contact:
-#      name: ByteCare Team
-#      email: contato@bytecare.com
-#
-## ========== LOGGING ==========
-#logging:
-#  level:
-#    root: INFO
-#    br.com.fiap.javaadv.blog.backend: DEBUG
-#    org.hibernate.SQL: DEBUG
-#    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-#    org.springframework.web: DEBUG
-#    com.zaxxer.hikari: INFO
-#    oracle: INFO
-#
-## ========== SERVER ==========
-#server:
-#  port: 8080
-#  servlet:
-#    context-path: /
-#  compression:
-#    enabled: true
-#  error:
-#    include-stacktrace: never
-#    include-message: always
-#
-## ========== MANAGEMENT ==========
-#management:
-#  endpoints:
-#    web:
-#      exposure:
-#        include: health,info
-#  endpoint:
-#    health:
-#      show-details: always
-
 spring:
   application:
     name: bytecare
 
-  # ========== DATA SOURCE (ORACLE) ==========
   datasource:
     url: jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL
     driver-class-name: oracle.jdbc.OracleDriver
@@ -144,13 +18,12 @@ spring:
       leak-detection-threshold: 60000
       auto-commit: false
 
-  # ========== JPA / HIBERNATE ==========
   jpa:
     open-in-view: false
     show-sql: true
-    generate-ddl: true
+    generate-ddl: false
     hibernate:
-      ddl-auto: update # Mude para 'create' apenas para forçar a recriação do banco
+      ddl-auto: validate
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
@@ -163,18 +36,30 @@ spring:
           batch_size: 30
           fetch_size: 100
 
-  # ========== WEB / MVC ==========
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
   mvc:
     format:
       date: yyyy-MM-dd
       date-time: yyyy-MM-dd HH:mm:ss
+
   web:
     error:
       include-binding-errors: always
       include-message: always
       include-stacktrace: never
 
-# ========== SPRINGDOC OPENAPI ==========
+server:
+  port: 8080
+  compression:
+    enabled: true
+  error:
+    include-message: always
+    include-stacktrace: never
+
 springdoc:
   api-docs:
     path: /api-docs
@@ -189,16 +74,6 @@ springdoc:
     description: API para gerenciamento de cuidados com animais de estimação.
     version: 1.0.0
 
-# ========== SERVER ==========
-server:
-  port: 8080
-  compression:
-    enabled: true
-  error:
-    include-message: always
-    include-stacktrace: never
-
-# ========== LOGGING ==========
 logging:
   level:
     root: INFO
@@ -208,7 +83,6 @@ logging:
     org.springframework.web: DEBUG
     com.zaxxer.hikari: INFO
 
-# ========== MANAGEMENT ==========
 management:
   endpoints:
     web:
