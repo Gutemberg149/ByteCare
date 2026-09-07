@@ -1,44 +1,35 @@
 package br.com.fiap.javaadv.blog.backend.resources.dtos;
 
 import br.com.fiap.javaadv.blog.backend.domainmodel.entities.AcaoPreventiva;
-import br.com.fiap.javaadv.blog.backend.domainmodel.entities.Animal;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Getter
-@Setter
+@Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class AcaoPreventivaResponse {
 
     private UUID id;
     private String nomeServico;
     private String descricao;
     private String proximoPrevisto;
-    private String observacao;
-    private String categoria;
     private LocalDateTime dataHoraRegistro;
-    private UUID idAnimal;
-    private String nomeAnimal;
+    private UUID animalId;
 
-    public static AcaoPreventivaResponse toDto(final AcaoPreventiva entity) {
-        if (entity == null) return null;
-
-        var animal = entity.getAnimal();
-
+    public static AcaoPreventivaResponse fromEntity(AcaoPreventiva entity) {
         return AcaoPreventivaResponse.builder()
                 .id(entity.getId())
                 .nomeServico(entity.getNomeServico())
                 .descricao(entity.getDescricao())
                 .proximoPrevisto(entity.getProximoPrevisto())
-                .observacao(entity.getObservacao())
-                .categoria(entity.getCategoria() != null ? entity.getCategoria().name() : null)
                 .dataHoraRegistro(entity.getDataHoraRegistro())
-                .idAnimal(animal != null ? animal.getId() : null)
-                .nomeAnimal(animal != null ? animal.getNome() : null)
+                .animalId(entity.getAnimal() != null ? entity.getAnimal().getId() : null)
                 .build();
     }
 }

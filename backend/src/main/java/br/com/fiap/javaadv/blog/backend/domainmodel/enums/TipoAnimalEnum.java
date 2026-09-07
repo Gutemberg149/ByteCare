@@ -2,5 +2,12 @@ package br.com.fiap.javaadv.blog.backend.domainmodel.enums;
 
 public enum TipoAnimalEnum {
     CACHORRO,
-    GATO
+    GATO,
+    PEIXE,
+    PASSARO,
+    COELHO,
+    BOVINO,
+    EQUINO,
+    GALINHA,
+
 }

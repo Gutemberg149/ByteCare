@@ -1,51 +1,27 @@
 package br.com.fiap.javaadv.blog.backend.resources.dtos;
 
-import br.com.fiap.javaadv.blog.backend.domainmodel.entities.AcaoPreventiva;
-import br.com.fiap.javaadv.blog.backend.domainmodel.entities.Animal;
-import br.com.fiap.javaadv.blog.backend.domainmodel.enums.CategoriaCuidadoEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
-@AllArgsConstructor
-@NoArgsConstructor
+@Data
 @Builder
-@Getter
-@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class AcaoPreventivaRequest {
 
-    @NotNull(message = "O ID do animal é obrigatório")
-    private UUID idAnimal;
-
-    @NotBlank(message = "O nome do serviço preventivo é obrigatório")
-    @Size(min = 2, max = 150, message = "O nome do serviço deve ter entre 2 e 150 caracteres")
+    @NotBlank(message = "O nome do serviço é obrigatório")
     private String nomeServico;
 
-    @NotBlank(message = "A descrição do serviço preventivo é obrigatória")
-    @Size(min = 2, max = 500, message = "A descrição deve ter entre 2 e 500 caracteres")
     private String descricao;
 
     private String proximoPrevisto;
 
-    @Size(max = 500, message = "A observação deve ter no máximo 500 caracteres")
-    private String observacao;
-
-
-    private String categoria;
-
-    public static AcaoPreventiva toEntity(final AcaoPreventivaRequest dto, final Animal animal) {
-        return AcaoPreventiva.preventivoBuilder()
-                .nomeServico(dto.getNomeServico())
-                .descricao(dto.getDescricao())
-                .proximoPrevisto(dto.getProximoPrevisto())
-                .observacao(dto.getObservacao())
-                .animal(animal)
-                .categoria(dto.getCategoria() != null ? CategoriaCuidadoEnum.valueOf(dto.getCategoria().toUpperCase()) : null)
-                .dataHoraRegistro(LocalDateTime.now())
-                .build();
-    }
+    @NotNull(message = "O ID do animal é obrigatório")
+    private UUID idAnimal;
 }

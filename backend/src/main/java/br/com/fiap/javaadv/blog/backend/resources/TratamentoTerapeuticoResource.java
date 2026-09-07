@@ -1,3 +1,95 @@
+//package br.com.fiap.javaadv.blog.backend.resources;
+//
+//import br.com.fiap.javaadv.blog.backend.config.docs.ApiStandardErrors;
+//import br.com.fiap.javaadv.blog.backend.resources.dtos.TratamentoTerapeuticoRequest;
+//import br.com.fiap.javaadv.blog.backend.resources.dtos.TratamentoTerapeuticoResponse;
+//import br.com.fiap.javaadv.blog.backend.services.AnimalService;
+//import br.com.fiap.javaadv.blog.backend.services.TratamentoTerapeuticoService;
+//import io.swagger.v3.oas.annotations.Operation;
+//import io.swagger.v3.oas.annotations.tags.Tag;
+//import jakarta.validation.Valid;
+//import lombok.RequiredArgsConstructor;
+//import org.springdoc.core.annotations.ParameterObject;
+//import org.springframework.data.domain.Page;
+//import org.springframework.data.domain.Pageable;
+//import org.springframework.data.web.PageableDefault;
+//import org.springframework.http.ResponseEntity;
+//import org.springframework.web.bind.annotation.*;
+//import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+//
+//import java.net.URI;
+//import java.util.List;
+//import java.util.UUID;
+//
+//@RestController
+//@RequestMapping("/api/tratamentos-terapeuticos")
+//@RequiredArgsConstructor
+//@Tag(name = "Tratamentos Terapêuticos", description = "Endpoints para gerenciamento de tratamentos")
+//public class TratamentoTerapeuticoResource {
+//
+//    private final TratamentoTerapeuticoService service;
+//    private final AnimalService animalService;
+//
+//    @PostMapping
+//    @Operation(summary = "Criar novo tratamento")
+//    @ApiStandardErrors
+//    public ResponseEntity<TratamentoTerapeuticoResponse> create(@Valid @RequestBody TratamentoTerapeuticoRequest request) {
+//
+//        var response = service.create(request);
+//
+//        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+//                .path("/{id}").buildAndExpand(response.getId()).toUri();
+//
+//        return ResponseEntity.created(location).body(response);
+//    }
+//
+//    @PutMapping("/{id}")
+//    @Operation(summary = "Atualizar tratamento")
+//    @ApiStandardErrors
+//    public ResponseEntity<TratamentoTerapeuticoResponse> update(@PathVariable UUID id, @Valid @RequestBody TratamentoTerapeuticoRequest request) {
+//
+//        var response = service.update(id, request);
+//        return ResponseEntity.ok(response);
+//    }
+//
+//    @GetMapping("/{id}")
+//    @Operation(summary = "Buscar por ID")
+//    @ApiStandardErrors
+//    public ResponseEntity<TratamentoTerapeuticoResponse> fetchById(@PathVariable UUID id) {
+//
+//        return ResponseEntity.ok(service.findById(id));
+//    }
+//
+//    @GetMapping
+//    @Operation(summary = "Listar todos")
+//    public ResponseEntity<Page<TratamentoTerapeuticoResponse>> findAll(@ParameterObject @PageableDefault(size = 10) Pageable pageable) {
+//
+//        return ResponseEntity.ok(service.findAll(pageable));
+//    }
+//
+//    @GetMapping("/animal/{animalId}")
+//    @Operation(summary = "Listar por animal")
+//    public ResponseEntity<Page<TratamentoTerapeuticoResponse>> fetchByAnimal(
+//            @PathVariable UUID animalId, @ParameterObject @PageableDefault(size = 10) Pageable pageable) {
+//        return ResponseEntity.ok(service.findByAnimalId(animalId, pageable));
+//    }
+//
+//    @GetMapping("/buscar")
+//    @Operation(summary = "Buscar por animal e medicamento")
+//    public ResponseEntity<Page<TratamentoTerapeuticoResponse>> buscar(
+//            @RequestParam UUID animalId, @RequestParam String medicamento, @ParameterObject Pageable pageable) {
+//        return ResponseEntity.ok(service.buscarPorMedicamento(animalId, medicamento, pageable));
+//    }
+//
+//    @DeleteMapping("/{id}")
+//    @Operation(summary = "Excluir tratamento")
+//    public ResponseEntity<Void> deleteById(@PathVariable UUID id) {
+//        if (!service.existsById(id)) return ResponseEntity.notFound().build();
+//        service.delete(id);
+//        return ResponseEntity.noContent().build();
+//    }
+//}
+
 package br.com.fiap.javaadv.blog.backend.resources;
 
 import br.com.fiap.javaadv.blog.backend.config.docs.ApiStandardErrors;
@@ -9,10 +101,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -24,68 +112,70 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/tratamentos-terapeuticos")
 @RequiredArgsConstructor
-@Tag(name = "Tratamentos Terapêuticos", description = "Endpoints para gerenciamento de tratamentos")
+@Tag(name = "Tratamentos Terapêuticos", description = "Endpoints para gerenciamento de tratamentos terapêuticos")
 public class TratamentoTerapeuticoResource {
 
     private final TratamentoTerapeuticoService service;
     private final AnimalService animalService;
 
     @PostMapping
-    @Operation(summary = "Criar novo tratamento")
+    @Operation(summary = "Criar novo tratamento terapêutico")
     @ApiStandardErrors
     public ResponseEntity<TratamentoTerapeuticoResponse> create(@Valid @RequestBody TratamentoTerapeuticoRequest request) {
-
-        var response = service.create(request);
-
+        UUID animalId = parseUuid(request.getIdAnimal(), "idAnimal");
+        var animal = animalService.fetchById(animalId);
+        var saved = service.create(request, animal);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}").buildAndExpand(response.getId()).toUri();
-
-        return ResponseEntity.created(location).body(response);
-    }
-
-    @PutMapping("/{id}")
-    @Operation(summary = "Atualizar tratamento")
-    @ApiStandardErrors
-    public ResponseEntity<TratamentoTerapeuticoResponse> update(@PathVariable UUID id, @Valid @RequestBody TratamentoTerapeuticoRequest request) {
-
-        var response = service.update(id, request);
-        return ResponseEntity.ok(response);
+                .path("/{id}").buildAndExpand(saved.getId()).toUri();
+        return ResponseEntity.created(location).body(TratamentoTerapeuticoResponse.fromEntity(saved));
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar por ID")
+    @Operation(summary = "Buscar tratamento por ID")
     @ApiStandardErrors
-    public ResponseEntity<TratamentoTerapeuticoResponse> fetchById(@PathVariable UUID id) {
-
+    public ResponseEntity<TratamentoTerapeuticoResponse> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
     @GetMapping
-    @Operation(summary = "Listar todos")
-    public ResponseEntity<Page<TratamentoTerapeuticoResponse>> findAll(@ParameterObject @PageableDefault(size = 10) Pageable pageable) {
-
-        return ResponseEntity.ok(service.findAll(pageable));
+    @Operation(summary = "Listar todos os tratamentos")
+    public ResponseEntity<List<TratamentoTerapeuticoResponse>> findAll() {
+        return ResponseEntity.ok(service.findAll());
     }
 
     @GetMapping("/animal/{animalId}")
-    @Operation(summary = "Listar por animal")
-    public ResponseEntity<Page<TratamentoTerapeuticoResponse>> fetchByAnimal(
-            @PathVariable UUID animalId, @ParameterObject @PageableDefault(size = 10) Pageable pageable) {
-        return ResponseEntity.ok(service.findByAnimalId(animalId, pageable));
+    @Operation(summary = "Listar tratamentos por animal")
+    public ResponseEntity<List<TratamentoTerapeuticoResponse>> findByAnimal(@PathVariable UUID animalId) {
+        return ResponseEntity.ok(service.findAllByAnimalId(animalId));
     }
 
-    @GetMapping("/buscar")
-    @Operation(summary = "Buscar por animal e medicamento")
-    public ResponseEntity<Page<TratamentoTerapeuticoResponse>> buscar(
-            @RequestParam UUID animalId, @RequestParam String medicamento, @ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(service.buscarPorMedicamento(animalId, medicamento, pageable));
+    @PutMapping("/{id}")
+    @Operation(summary = "Atualizar tratamento terapêutico")
+    @ApiStandardErrors
+    public ResponseEntity<TratamentoTerapeuticoResponse> update(
+            @PathVariable UUID id,
+            @Valid @RequestBody TratamentoTerapeuticoRequest request) {
+        UUID animalId = parseUuid(request.getIdAnimal(), "idAnimal");
+        var animal = animalService.fetchById(animalId);
+        return ResponseEntity.ok(service.update(id, request, animal));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Excluir tratamento")
-    public ResponseEntity<Void> deleteById(@PathVariable UUID id) {
-        if (!service.existsById(id)) return ResponseEntity.notFound().build();
+    @ApiStandardErrors
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        if (!service.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
         service.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private UUID parseUuid(String uuidString, String fieldName) {
+        try {
+            return UUID.fromString(uuidString);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("O campo '" + fieldName + "' não é um UUID válido: " + uuidString);
+        }
     }
 }

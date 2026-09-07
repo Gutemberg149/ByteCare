@@ -18,49 +18,35 @@ public class TratamentoTerapeutico {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "ID", columnDefinition = "RAW(16)")
     private UUID id;
 
-    @Column(name = "MEDICAMENTO", nullable = false, length = 150)
+    @Column(name = "MEDICAMENTO", nullable = false, length = 100)
     private String medicamento;
 
-    @Column(name = "DOSAGEM")
+    @Column(name = "DOSAGEM", length = 50)
     private String dosagem;
 
-    @Column(name = "FREQUENCIA")
-    private String frequencia;
-
-    @Column(name = "DURACAO_TRATAMENTO")
-    private String duracaoTratamento;
-
-    @Column(name = "OBSERVACAO")
+    @Column(name = "OBSERVACAO", length = 500)
     private String observacao;
 
-    @Column(name = "CATEGORIA")
-    private String categoria;
+    @Column(name = "DATA_HORA_REGISTRO", nullable = false)
+    private LocalDateTime dataHoraRegistro;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ANIMAL_ID", nullable = false)
     private Animal animal;
 
-    @Column(name = "DATA_HORA_REGISTRO", nullable = false)
-    private LocalDateTime dataHoraRegistro;
-
-    @PrePersist
-    protected void onCreate() {
-        if (dataHoraRegistro == null) {
-            dataHoraRegistro = LocalDateTime.now();
-        }
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof TratamentoTerapeutico that)) return false;
-        return id != null && id.equals(that.id);
+        if (o == null || getClass() != o.getClass()) return false;
+        TratamentoTerapeutico that = (TratamentoTerapeutico) o;
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hashCode(id);
     }
 }

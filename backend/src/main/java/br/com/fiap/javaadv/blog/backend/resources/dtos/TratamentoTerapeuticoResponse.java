@@ -1,38 +1,35 @@
 package br.com.fiap.javaadv.blog.backend.resources.dtos;
 
 import br.com.fiap.javaadv.blog.backend.domainmodel.entities.TratamentoTerapeutico;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
-@NoArgsConstructor
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Data
 @Builder
-@Getter
-@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class TratamentoTerapeuticoResponse {
 
-    private String id;
-    private String nomeMedicamento;
+    private UUID id;
+    private String medicamento;
     private String dosagem;
-    private String frequencia;
-    private String duracaoTratamento;
     private String observacao;
-    private String categoria;
-    private String idAnimal;
-    private String nomeAnimal;
+    private LocalDateTime dataHoraRegistro;
+    private UUID animalId;
 
-    public static TratamentoTerapeuticoResponse toDto(final TratamentoTerapeutico entity) {
-        if (entity == null) return null;
-
+    public static TratamentoTerapeuticoResponse fromEntity(TratamentoTerapeutico entity) {
         return TratamentoTerapeuticoResponse.builder()
-                .id(entity.getId() != null ? entity.getId().toString() : null)
-                .nomeMedicamento(entity.getMedicamento())
+                .id(entity.getId())
+                .medicamento(entity.getMedicamento())
                 .dosagem(entity.getDosagem())
-                .frequencia(entity.getFrequencia())
-                .duracaoTratamento(entity.getDuracaoTratamento())
                 .observacao(entity.getObservacao())
-                .categoria(entity.getCategoria())
-                .idAnimal(entity.getAnimal() != null ? entity.getAnimal().getId().toString() : null)
-                .nomeAnimal(entity.getAnimal() != null ? entity.getAnimal().getNome() : null)
+                .dataHoraRegistro(entity.getDataHoraRegistro())
+                .animalId(entity.getAnimal() != null ? entity.getAnimal().getId() : null)
                 .build();
     }
 }

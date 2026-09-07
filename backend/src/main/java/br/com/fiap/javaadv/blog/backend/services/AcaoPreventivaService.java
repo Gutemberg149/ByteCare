@@ -2,6 +2,7 @@ package br.com.fiap.javaadv.blog.backend.services;
 
 import br.com.fiap.javaadv.blog.backend.datasource.repositories.AcaoPreventivaRepository;
 import br.com.fiap.javaadv.blog.backend.domainmodel.entities.AcaoPreventiva;
+import br.com.fiap.javaadv.blog.backend.domainmodel.entities.Animal;
 import br.com.fiap.javaadv.blog.backend.resources.dtos.AcaoPreventivaRequest;
 import br.com.fiap.javaadv.blog.backend.resources.dtos.AcaoPreventivaResponse;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,33 +28,31 @@ public class AcaoPreventivaService {
     @Transactional
     @CacheEvict(allEntries = true)
     public AcaoPreventivaResponse create(AcaoPreventivaRequest request) {
+        Animal animal = animalService.fetchById(request.getIdAnimal());
 
-        var animal = animalService.fetchById(request.getIdAnimal());
+        AcaoPreventiva acao = AcaoPreventiva.builder()
+                .nomeServico(request.getNomeServico())
+                .descricao(request.getDescricao())
+                .proximoPrevisto(request.getProximoPrevisto())
+                .dataHoraRegistro(LocalDateTime.now())
+                .animal(animal)
+                .build();
 
-        if (animal == null) {
-            throw new IllegalArgumentException("Animal não encontrado com ID: " + request.getIdAnimal());
-        }
-
-        var acao = AcaoPreventivaRequest.toEntity(request, animal);
-        return AcaoPreventivaResponse.toDto(repository.save(acao));
+        return AcaoPreventivaResponse.fromEntity(repository.save(acao));
     }
 
     @Transactional
     @CacheEvict(allEntries = true)
     public Optional<AcaoPreventivaResponse> update(UUID id, AcaoPreventivaRequest request) {
         return repository.findById(id).map(existente -> {
+            Animal animal = animalService.fetchById(request.getIdAnimal());
 
-            var animal = animalService.fetchById(request.getIdAnimal());
+            existente.setNomeServico(request.getNomeServico());
+            existente.setDescricao(request.getDescricao());
+            existente.setProximoPrevisto(request.getProximoPrevisto());
+            existente.setAnimal(animal);
 
-            if (animal == null) {
-                throw new IllegalArgumentException("Animal não encontrado com ID: " + request.getIdAnimal());
-            }
-
-            var atualizada = AcaoPreventivaRequest.toEntity(request, animal);
-            atualizada.setId(id);
-            atualizada.setDataHoraRegistro(existente.getDataHoraRegistro());
-
-            return AcaoPreventivaResponse.toDto(repository.save(atualizada));
+            return AcaoPreventivaResponse.fromEntity(repository.save(existente));
         });
     }
 
@@ -72,14 +72,14 @@ public class AcaoPreventivaService {
     @Transactional(readOnly = true)
     @Cacheable(key = "#id")
     public Optional<AcaoPreventivaResponse> findById(UUID id) {
-        return repository.findById(id).map(AcaoPreventivaResponse::toDto);
+        return repository.findById(id).map(AcaoPreventivaResponse::fromEntity);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(key = "'all'")
     public List<AcaoPreventivaResponse> findAll() {
         return repository.findAll().stream()
-                .map(AcaoPreventivaResponse::toDto)
+                .map(AcaoPreventivaResponse::fromEntity)
                 .toList();
     }
 
@@ -87,7 +87,7 @@ public class AcaoPreventivaService {
     @Cacheable(key = "#animalId + '_list'")
     public List<AcaoPreventivaResponse> findAllByAnimalId(UUID animalId) {
         return repository.findByAnimalId(animalId).stream()
-                .map(AcaoPreventivaResponse::toDto)
+                .map(AcaoPreventivaResponse::fromEntity)
                 .toList();
     }
 
@@ -95,7 +95,7 @@ public class AcaoPreventivaService {
     @Cacheable(key = "#animalId + '_busca_' + #nome")
     public List<AcaoPreventivaResponse> buscarPorNomeServico(UUID animalId, String nome) {
         return repository.buscarPorNomeServico(animalId, nome).stream()
-                .map(AcaoPreventivaResponse::toDto)
+                .map(AcaoPreventivaResponse::fromEntity)
                 .toList();
     }
 }
