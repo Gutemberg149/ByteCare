@@ -21,9 +21,6 @@ public class JwtTokenProvider {
     @Value("${app.jwt.secret}")
     private String jwtSecret;
 
-    @Value("${app.jwt.expiration}")
-    private int jwtExpiration;
-
     private Key getSigningKey() {
         byte[] keyBytes = jwtSecret.getBytes();
         return Keys.hmacShaKeyFor(keyBytes);
@@ -32,7 +29,6 @@ public class JwtTokenProvider {
     public String generateToken(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
         String roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -42,7 +38,6 @@ public class JwtTokenProvider {
                 .setSubject(userDetails.getUsername())
                 .claim("roles", roles)
                 .setIssuedAt(now)
-                .setExpiration(expiryDate)
                 .signWith(getSigningKey(), io.jsonwebtoken.SignatureAlgorithm.HS512)
                 .compact();
     }
