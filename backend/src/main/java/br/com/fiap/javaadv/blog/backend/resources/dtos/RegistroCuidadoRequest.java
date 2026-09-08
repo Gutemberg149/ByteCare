@@ -23,7 +23,6 @@ public class RegistroCuidadoRequest {
     private CategoriaCuidadoEnum categoria;
 
     @NotNull(message = "A data do registro é obrigatória")
-
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     @JsonProperty("dataHoraRegistro")
     private LocalDate dataRegistro;
@@ -42,7 +41,6 @@ public class RegistroCuidadoRequest {
                 .dataHoraRegistro(this.dataRegistro.atTime(LocalTime.now()))
                 .descricao(this.descricao)
                 .animal(animal)
-                .animalId(animal.getId())
                 .build();
     }
 }

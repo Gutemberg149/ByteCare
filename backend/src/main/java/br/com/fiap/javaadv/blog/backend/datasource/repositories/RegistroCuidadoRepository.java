@@ -16,7 +16,6 @@ import java.util.UUID;
 @Repository
 public interface RegistroCuidadoRepository extends JpaRepository<RegistroCuidado, UUID> {
 
-
     @Override
     @EntityGraph(attributePaths = {"animal"})
     Page<RegistroCuidado> findAll(Pageable pageable);

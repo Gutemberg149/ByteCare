@@ -12,7 +12,7 @@ import java.util.UUID;
 @Table(name = "ANIMAL")
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"preventivos", "tratamentos", "atividades"})
+@ToString(exclude = {"preventivos", "tratamentos", "atividades", "registrosCuidado"})
 @Builder
 @Getter
 @Setter
@@ -56,6 +56,10 @@ public class Animal {
     @Builder.Default
     private List<AtividadeBemEstar> atividades = new ArrayList<>();
 
+    @OneToMany(mappedBy = "animal", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<RegistroCuidado> registrosCuidado = new ArrayList<>();
+
     public Animal(String nome, String tipo, String raca, LocalDate dataNascimento,
                   String observacaoGeral, Long subcategoriaId) {
         this.nome = nome;
@@ -68,6 +72,7 @@ public class Animal {
         this.preventivos = new ArrayList<>();
         this.tratamentos = new ArrayList<>();
         this.atividades = new ArrayList<>();
+        this.registrosCuidado = new ArrayList<>();
     }
 
     public static Animal create(String nome, String tipo, String raca,
@@ -84,6 +89,7 @@ public class Animal {
                 .preventivos(new ArrayList<>())
                 .tratamentos(new ArrayList<>())
                 .atividades(new ArrayList<>())
+                .registrosCuidado(new ArrayList<>())
                 .build();
     }
 
@@ -115,6 +121,16 @@ public class Animal {
     public void removeAtividade(AtividadeBemEstar atividade) {
         atividades.remove(atividade);
         atividade.setAnimal(null);
+    }
+
+    public void addRegistroCuidado(RegistroCuidado registro) {
+        registrosCuidado.add(registro);
+        registro.setAnimal(this);
+    }
+
+    public void removeRegistroCuidado(RegistroCuidado registro) {
+        registrosCuidado.remove(registro);
+        registro.setAnimal(null);
     }
 
     @Override

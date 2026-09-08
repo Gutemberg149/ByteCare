@@ -27,7 +27,8 @@ public class RegistroCuidadoService {
     @Transactional
     public RegistroCuidado create(RegistroCuidadoRequest request) {
         Animal animal = findAnimalOrThrow(request.getIdAnimal());
-        return repository.save(request.toEntity(animal));
+        RegistroCuidado entity = request.toEntity(animal);
+        return repository.save(entity);
     }
 
     @Transactional
@@ -37,11 +38,8 @@ public class RegistroCuidadoService {
 
         existente.setCategoria(request.getCategoria());
         existente.setDescricao(request.getDescricao());
-
         existente.setDataHoraRegistro(request.getDataRegistro().atTime(LocalTime.now()));
-
         existente.setAnimal(novoAnimal);
-        existente.setAnimalId(novoAnimal.getId());
 
         return repository.save(existente);
     }
